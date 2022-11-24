@@ -12,8 +12,8 @@ for payload_g in range(0,1100,100):
     vf = v.consum_f_high(payload_kg)
     mh = m.consum_h(payload_kg)
     mf = m.consum_f_high(payload_kg)
-    time = (vh - mh)/(mf/m.speed_m_s - vf/v.speed_m_s)
+    distance = (vh - mh)/(mf/mSpeed_m_s - vf/vSpeed_m_s)
     print("payload", payload_kg, ": vtol_h:",vh,": multi_h:",mh,
-    ": multi_f:",mf,": vtol_f:",vf,":time :", time)
-    #print("payload : ", payload_kg, "kg ,time : ", time, "s")
+    ": multi_f:",mf,": vtol_f:",vf,":threshold :", distance)
+    #print("payload : ", payload_kg, "kg ,threshold : ", distance, "m")
     
