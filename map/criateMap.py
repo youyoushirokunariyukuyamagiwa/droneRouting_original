@@ -2,6 +2,7 @@ import random
 
 
 f = open('map1.txt','w')
+f.write("x-axis, y-axis, demand")
 
 # 任意マップ作成 
 # node = 'x座標, y座標, demand 'のリスト作成
@@ -18,11 +19,12 @@ f.close()
 
 N = 4  # ノード数
 for i in range(N) :
+    f.write("\n")
     x = random.randint(100,1500)
     y = random.randint(100,1500)
     demand = random.randint(1,3)/10
     print("node_num : ", i, ", x : ", x, ", y : ", y, ", demand : ", demand,)
-    nodeStr = str(x)+","+str(y)+","+str(demand)+"\n"
+    nodeStr = str(x)+","+str(y)+","+str(demand)
     f.write(nodeStr)
     
 
