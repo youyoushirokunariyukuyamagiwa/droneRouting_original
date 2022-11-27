@@ -9,5 +9,4 @@ class Node:
         self.demand = demand
         self.previous = 0
     
-    def distance(self,to_node):
-        return math.sqrt((self.x - to_node.x)**2 + (self.y - to_node.y)**2)
+    
