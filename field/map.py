@@ -30,7 +30,7 @@ class Map:
     def readMapFile(self,fileName):
         f = open(fileName,'r')
         next(f) #  ファイルの2行目から読み込み
-        node_num = 0
+        node_num = 1 #  ２進文字列にしたとき、-node_numで場所を参照できるように
 
         while True: #  マップのファイルから顧客リストを作成
             nodeStr = f.readline() #  ファイルから1行読む
@@ -46,7 +46,7 @@ class Map:
             node_num += 1
         f.close()
 
-    
+    @staticmethod
     def distance(from_node,to_node):
         return math.sqrt((from_node.x - to_node.x)**2 + (from_node.y - to_node.y)**2)
     

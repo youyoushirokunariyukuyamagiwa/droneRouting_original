@@ -7,6 +7,5 @@ class Node:
         self.x = x
         self.y = y
         self.demand = demand
-        self.previous = 0
     
     
