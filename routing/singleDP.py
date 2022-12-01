@@ -113,11 +113,20 @@ if __name__ == "__main__":
                                 TB[new_vis,next_node.node_num] = Value(now_node.node_num,new_FT,new_BC)
 
     for key,tb in TB.items():
-        vis = key[0]
-        last_node = key[1]
-        print(vis,last_node,tb.flightTime)
+        print(key[0],key[1],tb.flightTime)
 
-    
+    for key,tb in TB.items():
+        vis = key[0]
+        last_node_num = key[1]
+        
+        last_distance = map.Map.distance(m.cList[last_node_num-1],depo)
+        last_flightTime = last_distance/drone.speed_m_s
+        last_BC = drone.calcBattery_f(last_distance,0)
+        TB[vis,last_node_num] = Value(tb.previous, tb.flightTime+last_flightTime, tb.BC+last_BC)
+
+    print("-------------------------------")
+    for key,tb in TB.items():
+        print(key[0],key[1],tb.flightTime)
 
                             
                     
