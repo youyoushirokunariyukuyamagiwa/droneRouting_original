@@ -8,16 +8,13 @@ from model import airframe
 from model import vtol
 
 #  visited2の状態でnode_numがすでに訪問済みかどうか
-def checkVisited(visited2:str, node_num:int, N:int):
-    if visited2[-1*node_num] == '1': #後ろから数えてnode_num番目
+def checkVisited(visited2, node_num:int, N:int):
+    if visited2[-node_num] == '1': #後ろから数えてnode_num番目
         return True
     else:
         return False
 
 def criateNewVisited(visited2:str, nextNode_num:int, N:int):
-    if checkVisited(visited2,nextNode_num,N): #すでに訪問済みなら終わる
-        return False
-    
     vislst = list(visited2)
     vislst[-nextNode_num] = "1"
     new_vis = "".join(vislst)
@@ -25,8 +22,6 @@ def criateNewVisited(visited2:str, nextNode_num:int, N:int):
     return new_vis
 
 def criateMinusVisited(visited2:str, minusNode_num):
-    if visited2[-minusNode_num] == 0: #  そもそも未訪問ならfalseを返す
-        return False
     vislst = list(visited2)
     vislst[-minusNode_num] = "0"
     minusVis = "".join(vislst)
@@ -88,38 +83,39 @@ if __name__ == "__main__":
     s='0'+str(N)+'b'
     now = format(0,s) #  どこにも訪れていない状態の
 
-    for next in m.cList: #  始めのデポ→各ノードまで
-        newVis = criateNewVisited(now,next.node_num,N)
+    for first in m.cList: #  始めのデポ→各ノードまで
+        newVis = criateNewVisited(now,first.node_num,N)
         
-        d = m.distance(depo,next) #  デポ→nextまでの距離
+        d = m.distance(depo,first) #  デポ→nextまでの距離
         ft = d/drone.speed_m_s
-        payload = next.demand #  nextに行くときのpayload
+        payload = first.demand #  nextに行くときのpayload
         
         BC = drone.calcBattery_f(d,payload)
         value = Value(0,ft,BC)
-        TB[newVis,next.node_num] = value
+        TB[newVis,first.node_num] = value
         visited.append(newVis)
     
 
-    for key,ptb in list(TB.items()):
-        print(key[0],key[1],ptb.BC)
-        vis = key[0]
-        lastNode = key[1]
+    for vis in visited:
+        for next_node in m.cList:
+            if checkVisited(vis,next_node.node_num,N) == False:
+                for now_node in m.cList:
+                    if checkVisited(vis,now_node.node_num,N) == True:
 
-        for next in m.cList:
-            if checkVisited(vis,next.node_num,N) == False:
-                for previous in m.cList:
-                    if checkVisited(vis,previous.node_num,N) == True:
-
-                        new_BC = calcBatteryCons(TB,m.cList,drone,previous,next,vis)
-                        if new_BC <= drone.battery_j: #  prevoius→nextに行くことが確定
-
-                            new_vis = criateNewVisited(vis,next.node_num,N)
+                        new_BC = calcBatteryCons(TB,m.cList,drone,now_node,next_node,vis)
+                        if new_BC <= drone.battery_j: #  now→nextに行くことが確定
+                            #print(vis,next_node.node_num)
+                            new_vis = criateNewVisited(vis,next_node.node_num,N)
                             if new_vis not in visited:
                                 visited.append(new_vis)
-                            new_FT = m.distance(previous,next)/drone.speed_m_s + ptb.flightTime
-                            if (new_vis,next.node_num) not in TB.keys() or TB[new_vis,next.node_num].flightTime > new_FT:
-                                TB[new_vis,next.node_num] = Value(previous,new_FT,new_BC)
+                            new_FT = m.distance(now_node,next_node)/drone.speed_m_s + TB[vis,now_node.node_num].flightTime
+                            if (new_vis,next_node.node_num) not in TB.keys() or TB[new_vis,next_node.node_num].flightTime > new_FT:
+                                TB[new_vis,next_node.node_num] = Value(now_node.node_num,new_FT,new_BC)
+
+    for key,tb in TB.items():
+        vis = key[0]
+        last_node = key[1]
+        print(vis,last_node,tb.flightTime)
 
     
 
