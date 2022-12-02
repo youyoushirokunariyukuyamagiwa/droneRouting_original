@@ -1,6 +1,6 @@
 import random
 import math
-from field import node
+import node
 
 class Map:
 
@@ -12,7 +12,7 @@ class Map:
     # node = 'x座標, y座標, demand 'のリスト作成
     @staticmethod
     def criateMapFile(N:int):
-        f = open('./data/map1.txt','w')
+        f = open('../data/map1.txt','w')
         f.write("x-axis, y-axis, demand")
 
         for i in range(N) :
@@ -49,13 +49,6 @@ class Map:
     @staticmethod
     def distance(from_node,to_node):
         return math.sqrt((from_node.x - to_node.x)**2 + (from_node.y - to_node.y)**2)
-    
 
-
-
-
-    
-
-
-
-#ファイル出力
+if __name__ == "__main__":
+    Map.criateMapFile(5)
