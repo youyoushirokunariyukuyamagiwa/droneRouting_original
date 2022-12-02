@@ -6,6 +6,7 @@ from field import map
 from field import node
 from model import airframe
 from model import vtol
+from model import multicopter
 
 #  visited2の状態でnode_numがすでに訪問済みかどうか
 def checkVisited(visited2, node_num:int, N:int):
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     m = map.Map()
     m.readMapFile("../data/map1.txt")
     N = len(m.cList)
-    drone = vtol.Vtol()
+    drone = multicopter.Multi()
     depo = node.Node(0,0,0,0)
 
     visited = [] #  2進数string
