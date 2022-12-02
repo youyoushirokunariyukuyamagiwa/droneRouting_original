@@ -112,8 +112,8 @@ if __name__ == "__main__":
                             if (new_vis,next_node.node_num) not in TB.keys() or TB[new_vis,next_node.node_num].flightTime > new_FT:
                                 TB[new_vis,next_node.node_num] = Value(now_node.node_num,new_FT,new_BC)
 
-    for key,tb in TB.items():
-        print(key[0],key[1],tb.flightTime)
+#    for key,tb in TB.items():
+#        print(key[0],key[1],tb.flightTime)
 
     for key,tb in TB.items():
         vis = key[0]
@@ -124,12 +124,49 @@ if __name__ == "__main__":
         last_BC = drone.calcBattery_f(last_distance,0)
         TB[vis,last_node_num] = Value(tb.previous, tb.flightTime+last_flightTime, tb.BC+last_BC)
 
-    print("-------------------------------")
-    for key,tb in TB.items():
-        print(key[0],key[1],tb.flightTime)
+#    print("-------------------------------")
+#    for key,tb in TB.items():
+#        print(key[0],key[1],tb.flightTime)
 
-                            
-                    
+    all_vis = "1"*N
+    best_root = [0] 
+    best_time = 9999999999999
+    goal_flag = 0
+    for key,tb in TB.items():
+        vis = key[0]
+        last_node_num = key[1]
+        
+        if vis == all_vis :
+            goal_flag = 1
+            if tb.flightTime < best_time:
+                best_last_node_num = last_node_num
+                best_time = tb.flightTime
+    
+    if goal_flag == 1:
+        best_root.append(best_last_node_num)
+        now_node_num = best_last_node_num
+        now_vis = all_vis
+        while True:
+            if now_node_num == 0:
+                break
+
+            if(TB[now_vis,now_node_num].previous == 0): #  デポだけcListに入ってないので、番号で識別して場合分け
+                previous_node_num = 0 #デポ
+            else:
+                previous_node_num = TB[now_vis,now_node_num].previous
+
+            best_root.append(previous_node_num)
+        
+            now_vis = criateMinusVisited(now_vis,now_node_num)
+            now_node_num = previous_node_num
+
+        best_root.reverse()
+        print(best_root)
+        print("flight time :",TB[all_vis,best_last_node_num].flightTime,"battery consumption :",TB[all_vis,best_last_node_num].BC)
+    elif goal_flag == 0:
+        print("We can't visit all victim.\n")
+            
+
 
 
 
