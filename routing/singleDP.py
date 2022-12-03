@@ -30,9 +30,13 @@ def criateMinusVisited(visited2:str, minusNode_num):
     return minusVis
 
 def calcBatteryCons(TB,cList,airframe:airframe,now_node:node,next_node:node,now_vis:str):
-    BC = TB[now_vis,now_node.node_num].BC 
-    + airframe.calcBattery_f(map.Map.distance(now_node,next_node),next_node.demand)
-    + airframe.calcBattery_f(map.Map.distance(next_node,depo),0)
+    #BC = TB[now_vis,now_node.node_num].BC 
+    
+    now_value = TB.get((now_vis,now_node.node_num))
+    if now_value == None:
+        return None #  このvisとこのnow_nodeの組み合わせは存在していないのでcontinue
+    else:
+        BC = now_value.BC + airframe.calcBattery_f(map.Map.distance(now_node,next_node),next_node.demand)
     
     tmp_node = now_node
     tmp_vis = now_vis
@@ -73,9 +77,10 @@ class Value:
 
 if __name__ == "__main__":
     m = map.Map()
-    m.readMapFile("../data/map1.txt")
+    m.readMapFile("../data/map2.txt")
     N = len(m.cList)
     drone = multicopter.Multi()
+    #drone = vtol.Vtol()
     depo = node.Node(0,0,0,0)
 
     visited = [] #  2進数string
@@ -104,7 +109,7 @@ if __name__ == "__main__":
                     if checkVisited(vis,now_node.node_num,N) == True:
 
                         new_BC = calcBatteryCons(TB,m.cList,drone,now_node,next_node,vis)
-                        if new_BC <= drone.battery_j: #  now→nextに行くことが確定
+                        if new_BC != None and new_BC + drone.calcBattery_f(map.Map.distance(next_node,depo),0) <= drone.battery_j: #  now→nextに行くことが確定
                             #print(vis,next_node.node_num)
                             new_vis = criateNewVisited(vis,next_node.node_num,N)
                             if new_vis not in visited:
@@ -114,7 +119,7 @@ if __name__ == "__main__":
                                 TB[new_vis,next_node.node_num] = Value(now_node.node_num,new_FT,new_BC)
 
 #    for key,tb in TB.items():
-#        print(key[0],key[1],tb.flightTime)
+#        print(key[0],key[1],tb.flightTime,tb.BC)
 
     for key,tb in TB.items():
         vis = key[0]
@@ -125,9 +130,10 @@ if __name__ == "__main__":
         last_BC = drone.calcBattery_f(last_distance,0)
         TB[vis,last_node_num] = Value(tb.previous, tb.flightTime+last_flightTime, tb.BC+last_BC)
 
-#    print("-------------------------------")
-#    for key,tb in TB.items():
-#        print(key[0],key[1],tb.flightTime)
+    print("-------------------------------")
+    for key,tb in TB.items():
+        print(key[0],key[1],tb.flightTime,tb.BC)
+
 
     all_vis = "1"*N
     best_root = [0] 

@@ -4,7 +4,7 @@ class Vtol(airframe.Airframe):
 
     def __init__(self):
         super().__init__()
-        self.battery_j = 290000  # 機体として正しい値は1118880
+        self.battery_j = 1118880  # 機体として正しい値は1118880(maxの7割)
         self.takeOffTime_s = 60  # 離着陸にかかる時間
         self.speed_m_s = 13.89  # 機体速度50km/h
     

@@ -4,7 +4,7 @@ class Multi(airframe.Airframe):
 
     def __init__(self):
         super().__init__()
-        self.battery_j = 460000  # 機体として正しい値は321120
+        self.battery_j = 1118880  # 機体として正しい値は321120*9/1.4
         self.takeOffTime_s = 60  # 離着陸にかかる時間
         self.speed_m_s = 13.89  # 機体速度50km/h
     
@@ -17,7 +17,7 @@ class Multi(airframe.Airframe):
         return 1742.6*payload_kg + 1334.6
 
     def calcBattery_f(self, distance, payload_kg):
-        return 1742.6*payload_kg + 1334.6
+        return (1742.6*payload_kg + 1334.6)*distance/self.speed_m_s
 
     def addPayloadBC(self,distance,payload_kg):
         return 1742.6*payload_kg * distance/self.speed_m_s
