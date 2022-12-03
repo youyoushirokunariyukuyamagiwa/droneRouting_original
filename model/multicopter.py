@@ -17,7 +17,7 @@ class Multi(airframe.Airframe):
         return 1742.6*payload_kg + 1334.6
 
     def calcBattery_f(self, distance, payload_kg):
-        return 1742.6*payload_kg + 1334.6
+        return (1742.6*payload_kg + 1334.6)*distance/self.speed_m_s
 
     def addPayloadBC(self,distance,payload_kg):
         return 1742.6*payload_kg * distance/self.speed_m_s

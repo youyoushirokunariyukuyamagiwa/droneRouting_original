@@ -131,8 +131,8 @@ if __name__ == "__main__":
         TB[vis,last_node_num] = Value(tb.previous, tb.flightTime+last_flightTime, tb.BC+last_BC)
 
     print("-------------------------------")
-#    for key,tb in TB.items():
-#        print(key[0],key[1],tb.flightTime,tb.BC)
+    for key,tb in TB.items():
+        print(key[0],key[1],tb.flightTime,tb.BC)
 
 
     all_vis = "1"*N
