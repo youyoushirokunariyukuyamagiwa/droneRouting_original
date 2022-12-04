@@ -17,10 +17,10 @@ class Multi(airframe.Airframe):
         return 1742.6*payload_kg + 1334.6
 
     def calcBattery_f(self, distance, payload_kg):
-        return (1742.6*payload_kg + 1334.6)*distance/self.speed_m_s
+        return (1742.6*payload_kg + 1334.6)*distance/self.speed_m_s + self.consum_h(payload_kg)
 
     def addPayloadBC(self,distance,payload_kg):
-        return 1742.6*payload_kg * distance/self.speed_m_s
+        return 1742.6*payload_kg * distance/self.speed_m_s + 1742.6*payload_kg * self.takeOffTime_s
 
     # 離着陸でのバッテリー消費量（J）
     def consum_h(self,payload_kg):
