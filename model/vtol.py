@@ -23,7 +23,7 @@ class Vtol(airframe.Airframe):
         if distance < 200:
             battery = self.consum_f_low(payload_kg)*distance/self.speed_m_s
         else:
-            battery = self.consum_f_high(payload_kg)*distance/self.speed_m_s
+            battery = self.consum_f_low(payload_kg)*200/self.speed_m_s + self.consum_f_high(payload_kg)*(distance-200)/self.speed_m_s
 
         return battery
 
@@ -32,9 +32,9 @@ class Vtol(airframe.Airframe):
             battery = 385 * payload_kg * distance/self.speed_m_s
         else:
             if payload_kg < 0.4:
-                battery = 495 * distance/self.speed_m_s
+                battery = 385*payload_kg*200/self.speed_m_s+ 495 * (distance-200)/self.speed_m_s
             elif payload_kg >= 0.4:
-                battery = 59.167 * payload_kg * distance/self.speed_m_s
+                battery = 385*payload_kg*200/self.speed_m_s + 59.167 * payload_kg * (distance-200)/self.speed_m_s
 
         return battery
 
