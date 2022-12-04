@@ -79,8 +79,8 @@ if __name__ == "__main__":
     m = map.Map()
     m.readMapFile("../data/map2.txt")
     N = len(m.cList)
-    drone = multicopter.Multi()
-    #drone = vtol.Vtol()
+    #drone = multicopter.Multi()
+    drone = vtol.Vtol()
     depo = node.Node(0,0,0,0)
 
     visited = [] #  2進数string

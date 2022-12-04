@@ -17,13 +17,13 @@ class Map:
     # node = 'x座標, y座標, demand 'のリスト作成
     @staticmethod
     def criateMapFile(N:int):
-        f = open('../data/map2.txt','w')
+        f = open('../data/map1.txt','w')
         f.write("x-axis, y-axis, demand")
 
         for i in range(N) :
             f.write("\n")
-            x = random.randint(100,1500)
-            y = random.randint(100,1500)
+            x = random.randint(100,300)
+            y = random.randint(100,300)
             demand = random.randint(1,4)/10
             print("node_num : ", i+1, ", x : ", x, ", y : ", y, ", demand : ", demand,)
             nodeStr = str(x)+","+str(y)+","+str(demand)
@@ -56,4 +56,4 @@ class Map:
         return math.sqrt((from_node.x - to_node.x)**2 + (from_node.y - to_node.y)**2)
 
 if __name__ == "__main__":
-    Map.criateMapFile(11)
+    Map.criateMapFile(5)
