@@ -30,7 +30,6 @@ def criateMinusVisited(visited2:str, minusNode_num):
     return minusVis
 
 def calcBatteryCons(TB,cList,airframe:airframe,now_node:node,next_node:node,now_vis:str):
-    #BC = TB[now_vis,now_node.node_num].BC 
     
     now_value = TB.get((now_vis,now_node.node_num))
     if now_value == None:
@@ -79,21 +78,21 @@ if __name__ == "__main__":
     m = map.Map()
     m.readMapFile("../data/map2.txt")
     N = len(m.cList)
-    #drone = multicopter.Multi()
-    drone = vtol.Vtol()
+    drone = multicopter.Multi()
+    #drone = vtol.Vtol()
     depo = node.Node(0,0,0,0)
 
     visited = [] #  2進数string
     TB = {} #辞書 key:(visited , LastNode_num) value:Value}
     
     s='0'+str(N)+'b'
-    now = format(0,s) #  どこにも訪れていない状態の
+    zero_vis = format(0,s) #  どこにも訪れていない状態の
 
     for first in m.cList: #  始めのデポ→各ノードまで
-        newVis = criateNewVisited(now,first.node_num,N)
+        newVis = criateNewVisited(zero_vis,first.node_num,N)
         
         d = m.distance(depo,first) #  デポ→nextまでの距離
-        ft = d/drone.speed_m_s
+        ft = d/drone.speed_m_s + drone.takeOffTime_s
         payload = first.demand #  nextに行くときのpayload
         
         BC = drone.calcBattery_f(d,payload)
@@ -114,7 +113,7 @@ if __name__ == "__main__":
                             new_vis = criateNewVisited(vis,next_node.node_num,N)
                             if new_vis not in visited:
                                 visited.append(new_vis)
-                            new_FT = m.distance(now_node,next_node)/drone.speed_m_s + TB[vis,now_node.node_num].flightTime
+                            new_FT = m.distance(now_node,next_node)/drone.speed_m_s + TB[vis,now_node.node_num].flightTime + drone.takeOffTime_s
                             if (new_vis,next_node.node_num) not in TB.keys() or TB[new_vis,next_node.node_num].flightTime > new_FT:
                                 TB[new_vis,next_node.node_num] = Value(now_node.node_num,new_FT,new_BC)
 
@@ -126,7 +125,7 @@ if __name__ == "__main__":
         last_node_num = key[1]
         
         last_distance = map.Map.distance(m.cList[last_node_num-1],depo)
-        last_flightTime = last_distance/drone.speed_m_s
+        last_flightTime = last_distance/drone.speed_m_s + drone.takeOffTime_s
         last_BC = drone.calcBattery_f(last_distance,0)
         TB[vis,last_node_num] = Value(tb.previous, tb.flightTime+last_flightTime, tb.BC+last_BC)
 

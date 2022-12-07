@@ -21,25 +21,26 @@ class Vtol(airframe.Airframe):
 
     def calcBattery_f(self,distance,payload_kg):
         if distance < 200:
-            battery = self.consum_f_low(payload_kg)*distance/self.speed_m_s
+            battery = self.consum_f_low(payload_kg)*distance/self.speed_m_s + self.consum_h(payload_kg)
         else:
-            battery = self.consum_f_low(payload_kg)*200/self.speed_m_s + self.consum_f_high(payload_kg)*(distance-200)/self.speed_m_s
+            battery = self.consum_f_low(payload_kg)*200/self.speed_m_s + self.consum_f_high(payload_kg)*(distance-200)/self.speed_m_s + self.consum_h(payload_kg)
 
         return battery
 
     def addPayloadBC(self,distance,payload_kg):
         if distance < 200:
-            battery = 385 * payload_kg * distance/self.speed_m_s
+            battery = 385 * payload_kg * distance/self.speed_m_s + 385 * payload_kg*self.takeOffTime_s
         else:
             if payload_kg < 0.4:
-                battery = 385*payload_kg*200/self.speed_m_s+ 495 * (distance-200)/self.speed_m_s
+                battery = 385*payload_kg*200/self.speed_m_s+ 495 * (distance-200)/self.speed_m_s + 385 * payload_kg*self.takeOffTime_s
             elif payload_kg >= 0.4:
-                battery = 385*payload_kg*200/self.speed_m_s + 59.167 * payload_kg * (distance-200)/self.speed_m_s
+                battery = 385*payload_kg*200/self.speed_m_s + 59.167 * payload_kg * (distance-200)/self.speed_m_s + 385 * payload_kg*self.takeOffTime_s
 
         return battery
 
     #マルチコプターモードでの離着陸の消費電力(J)
     def consum_h(self,payload_kg):
         return self.takeOffTime_s * (385 * payload_kg + 2211.8)
+
     
     
