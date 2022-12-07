@@ -86,10 +86,10 @@ if __name__ == "__main__":
     TB = {} #辞書 key:(visited , LastNode_num) value:Value}
     
     s='0'+str(N)+'b'
-    now = format(0,s) #  どこにも訪れていない状態の
+    zero_vis = format(0,s) #  どこにも訪れていない状態の
 
     for first in m.cList: #  始めのデポ→各ノードまで
-        newVis = criateNewVisited(now,first.node_num,N)
+        newVis = criateNewVisited(zero_vis,first.node_num,N)
         
         d = m.distance(depo,first) #  デポ→nextまでの距離
         ft = d/drone.speed_m_s + drone.takeOffTime_s
