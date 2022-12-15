@@ -5,7 +5,7 @@ class Vtol(airframe.Airframe):
     def __init__(self):
         super().__init__()
         self.battery_j = 1118880  # 機体として正しい値は1118880(maxの7割)
-        self.takeOffTime_s = 60  # 離着陸にかかる時間
+        self.takeOffTime_s = 120  # 離着陸にかかる時間
         self.speed_m_s = 13.89  # 機体速度50km/h
     
     #固定翼モードでの1秒あたりの消費電力(J)
@@ -20,7 +20,7 @@ class Vtol(airframe.Airframe):
         return 385 * payload_kg + 2211.8
 
     def calcBattery_f(self,distance,payload_kg):
-        if distance < 200:
+        if distance <= 200:
             battery = self.consum_f_low(payload_kg)*distance/self.speed_m_s + self.consum_h(payload_kg)
         else:
             battery = self.consum_f_low(payload_kg)*200/self.speed_m_s + self.consum_f_high(payload_kg)*(distance-200)/self.speed_m_s + self.consum_h(payload_kg)
