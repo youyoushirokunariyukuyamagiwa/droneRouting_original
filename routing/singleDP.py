@@ -1,181 +1,182 @@
 import sys
 import os
 sys.path.append(os.path.abspath(".."))
+from matplotlib import pyplot
 
-from field import map
-from field import node
-from model import airframe
-from model import vtol
-from model import multicopter
+from field.map import Map
+from field.node import Node
+from model.airframe import Airframe
+from .value import Value
 
-#  visited2の状態でnode_numがすでに訪問済みかどうか
-def checkVisited(visited2, node_num:int, N:int):
-    if visited2[-node_num] == '1': #後ろから数えてnode_num番目
-        return True
-    else:
-        return False
-
-def criateNewVisited(visited2:str, nextNode_num:int, N:int):
-    vislst = list(visited2)
-    vislst[-nextNode_num] = "1"
-    new_vis = "".join(vislst)
-
-    return new_vis
-
-def criateMinusVisited(visited2:str, minusNode_num):
-    vislst = list(visited2)
-    vislst[-minusNode_num] = "0"
-    minusVis = "".join(vislst)
-
-    return minusVis
-
-def calcBatteryCons(TB,cList,airframe:airframe,now_node:node,next_node:node,now_vis:str):
+class SingleDP:
     
-    now_value = TB.get((now_vis,now_node.node_num))
-    if now_value == None:
-        return None #  このvisとこのnow_nodeの組み合わせは存在していないのでcontinue
-    else:
-        BC = now_value.BC + airframe.calcBattery_f(map.Map.distance(now_node,next_node),next_node.demand)
-    
-    tmp_node = now_node
-    tmp_vis = now_vis
-    bc =  0
-    while True:#過去のルートで発生するto_nodeに届ける荷物の分のB消費量
-        
-        if tmp_node == depo:
-            break
+    def __init__(self,drone,mapFilePass) -> None:
+        self.drone = drone
+        self.map = Map(mapFilePass)
+        self.visitedList = []
+        self.TB = {}
+        self.goalFlag = 0
+        self.bestRoute = [0]
 
-        if(TB[tmp_vis,tmp_node.node_num].previous == 0): #  デポだけcListに入ってないので、番号で識別して場合分け
-            previous_node = depo
+    #  visited2の状態でnode_numがすでに訪問済みかどうか
+    def checkVisited(self,visited:str, nodeNum:int):
+        if visited[-nodeNum] == '1':  # 後ろから数えてnode_num番目
+            return True
         else:
-            previous_node = cList[TB[tmp_vis,tmp_node.node_num].previous-1]
-        
-        d = map.Map.distance(previous_node,tmp_node)
-        bc += airframe.calcBattery_f(d,next_node.demand)
-        tmp_vis = criateMinusVisited(tmp_vis,tmp_node.node_num)
-        tmp_node = previous_node
-        
-    return BC+bc
+            return False
 
-def checkVisitable(TB,cList,airframe:airframe,from_node:node,to_node:node,now_vis:str):
-    if calcBatteryCons(TB,cList,airframe,from_node,to_node,now_vis) <= airframe.battery_j:
-        return True
-    else:
-        return False
+    #  現visitedから未訪問ノードを追加訪問した新visitedを作成
+    def criatePlusVisited(self,visited:str, plusNodeNum:int):
+        vislst = list(visited)
+        vislst[-plusNodeNum] = "1"
+        plsVis = "".join(vislst)
 
-class Value:
-    def __init__(self):
-        self.previous = 0
-        self.flightTime = 0
-        self.BC = 0
+        return plsVis
 
-    def __init__(self,previous,flightTime,BC):
-        self.previous = previous
-        self.flightTime = flightTime
-        self.BC = BC
+    #  現visitedから訪問済みノードを削除した新visitedを作成
+    def criateMinusVisited(self,visited:str, minusNodeNum):
+        vislst = list(visited)
+        vislst[-minusNodeNum] = "0"
+        minusVis = "".join(vislst)
 
-if __name__ == "__main__":
-    m = map.Map()
-    m.readMapFile("../data/map2.txt")
-    N = len(m.cList)
-    drone = multicopter.Multi()
-    #drone = vtol.Vtol()
-    depo = node.Node(0,0,0,0)
+        return minusVis
 
-    visited = [] #  2進数string
-    TB = {} #辞書 key:(visited , LastNode_num) value:Value}
+    #  未訪問ノードnextNodeを訪問する際かかるバッテリー消費量
+    def calcPlusBC(self,nowNodeNum:int,nextNodeNum:int,nowVis:str):
+        nowValue = self.TB.get((nowVis,nowNodeNum))
+        if nowValue == None:
+            return None #  このvisとこのnow_nodeの組み合わせは存在していないのでcontinue
+        else:
+            distance = self.map.dMatrix[nowNodeNum][nextNodeNum]
+            demand = self.map.nodeList[nextNodeNum].demand
+            BC = nowValue.BC + self.drone.calcBattery_f(distance,demand)
     
-    s='0'+str(N)+'b'
-    zero_vis = format(0,s) #  どこにも訪れていない状態の
-
-    for first in m.cList: #  始めのデポ→各ノードまで
-        newVis = criateNewVisited(zero_vis,first.node_num,N)
+        tmpNodeNum = nowNodeNum
+        tmpVis = nowVis
+        bc =  0
+        while True:#過去のルートで発生するto_nodeに届ける荷物の分のB消費量
         
-        d = m.distance(depo,first) #  デポ→nextまでの距離
-        ft = d/drone.speed_m_s + drone.takeOffTime_s
-        payload = first.demand #  nextに行くときのpayload
-        
-        BC = drone.calcBattery_f(d,payload)
-        value = Value(0,ft,BC)
-        TB[newVis,first.node_num] = value
-        visited.append(newVis)
-    
-
-    for vis in visited:
-        for next_node in m.cList:
-            if checkVisited(vis,next_node.node_num,N) == False:
-                for now_node in m.cList:
-                    if checkVisited(vis,now_node.node_num,N) == True:
-
-                        new_BC = calcBatteryCons(TB,m.cList,drone,now_node,next_node,vis)
-                        if new_BC != None and new_BC + drone.calcBattery_f(map.Map.distance(next_node,depo),0) <= drone.battery_j: #  now→nextに行くことが確定
-                            #print(vis,next_node.node_num)
-                            new_vis = criateNewVisited(vis,next_node.node_num,N)
-                            if new_vis not in visited:
-                                visited.append(new_vis)
-                            new_FT = m.distance(now_node,next_node)/drone.speed_m_s + TB[vis,now_node.node_num].flightTime + drone.takeOffTime_s
-                            if (new_vis,next_node.node_num) not in TB.keys() or TB[new_vis,next_node.node_num].flightTime > new_FT:
-                                TB[new_vis,next_node.node_num] = Value(now_node.node_num,new_FT,new_BC)
-
-#    for key,tb in TB.items():
-#        print(key[0],key[1],tb.flightTime,tb.BC)
-
-    for key,tb in TB.items():
-        vis = key[0]
-        last_node_num = key[1]
-        
-        last_distance = map.Map.distance(m.cList[last_node_num-1],depo)
-        last_flightTime = last_distance/drone.speed_m_s + drone.takeOffTime_s
-        last_BC = drone.calcBattery_f(last_distance,0)
-        TB[vis,last_node_num] = Value(tb.previous, tb.flightTime+last_flightTime, tb.BC+last_BC)
-
-    print("-------------------------------")
-    for key,tb in TB.items():
-        print(key[0],key[1],tb.flightTime,tb.BC)
-
-
-    all_vis = "1"*N
-    best_root = [0] 
-    best_time = 9999999999999
-    goal_flag = 0
-    for key,tb in TB.items():
-        vis = key[0]
-        last_node_num = key[1]
-        
-        if vis == all_vis :
-            goal_flag = 1
-            if tb.flightTime < best_time:
-                best_last_node_num = last_node_num
-                best_time = tb.flightTime
-    
-    if goal_flag == 1:
-        best_root.append(best_last_node_num)
-        now_node_num = best_last_node_num
-        now_vis = all_vis
-        while True:
-            if now_node_num == 0:
+            if tmpNodeNum == 0:
                 break
 
-            if(TB[now_vis,now_node_num].previous == 0): #  デポだけcListに入ってないので、番号で識別して場合分け
-                previous_node_num = 0 #デポ
-            else:
-                previous_node_num = TB[now_vis,now_node_num].previous
-
-            best_root.append(previous_node_num)
+            previousNodeNum = self.TB[tmpVis,tmpNodeNum].previous
         
-            now_vis = criateMinusVisited(now_vis,now_node_num)
-            now_node_num = previous_node_num
+            d = self.map.dMatrix[previousNodeNum][tmpNodeNum]
+            bc += self.drone.calcBattery_f(d,demand)
+            tmpVis = self.criateMinusVisited(tmpVis,tmpNodeNum)
+            tmpNodeNum = previousNodeNum
+        
+        return BC+bc
 
-        best_root.reverse()
-        print(best_root)
-        print("flight time :",TB[all_vis,best_last_node_num].flightTime,"battery consumption :",TB[all_vis,best_last_node_num].BC)
-    elif goal_flag == 0:
-        print("We can't visit all victim.\n")
-            
+    def checkVisitable(self,fromNodeNum:Node,toNodeNum:Node,nowVis:str):
+        plsBC = self.calcPlusBC(fromNodeNum,toNodeNum,nowVis)
+        if plsBC == None:
+            return False
+        elif plsBC + self.drone.calcBattery_f(self.map.dMatrix[toNodeNum][0],0) <= self.drone.battery_j:
+            return plsBC
+        else:
+            return False
 
+    def criateTB(self):
+        s='0'+str(self.map.CN)+'b'
+        zeroVis = format(0,s) #  どこにも訪れていない状態のvisited作成
 
+        for first in self.map.customerList: #  始めのデポ→各ノードまで
+            newVis = self.criatePlusVisited(zeroVis,first.nodeNum)
 
+            d = self.map.dMatrix[0][first.nodeNum] #  デポ→nextまでの距離
+            ft = d/self.drone.speed_m_s + self.drone.takeOffTime_s
+            payload = first.demand #  nextに行くときのpayload
+        
+            BC = self.drone.calcBattery_f(d,payload)
+            value = Value(0,ft,BC)
+            self.TB[newVis,first.nodeNum] = value
+            self.visitedList.append(newVis)
+    
+        for vis in self.visitedList:
+            for next_node in self.map.customerList:
+                if self.checkVisited(vis,next_node.nodeNum) == False:
+                    for now_node in self.map.customerList:
+                        if self.checkVisited(vis,now_node.nodeNum) == True:
 
+                            new_BC = self.checkVisitable(now_node.nodeNum,next_node.nodeNum,vis)
+                            if new_BC :#  now→nextに行くことが確定
+                                #print(vis,next_node.nodeNum)
+                                new_vis = self.criatePlusVisited(vis,next_node.nodeNum)
+                                if new_vis not in self.visitedList:
+                                    self.visitedList.append(new_vis)
+                                new_FT = self.map.dMatrix[now_node.nodeNum][next_node.nodeNum]/self.drone.speed_m_s + self.TB[vis,now_node.nodeNum].flightTime + self.drone.takeOffTime_s
+                                if (new_vis,next_node.nodeNum) not in self.TB.keys() or self.TB[new_vis,next_node.nodeNum].flightTime > new_FT:
+                                    self.TB[new_vis,next_node.nodeNum] = Value(now_node.nodeNum,new_FT,new_BC)
+    
+        for key,tb in self.TB.items():
+            vis = key[0]
+            last_node_num = key[1]
+        
+            last_distance = self.map.dMatrix[last_node_num][0]
+            last_flightTime = last_distance/self.drone.speed_m_s + self.drone.takeOffTime_s
+            last_BC = self.drone.calcBattery_f(last_distance,0)
+            self.TB[vis,last_node_num] = Value(tb.previous, tb.flightTime+last_flightTime, tb.BC+last_BC)
+    
+    def printBestRoute(self):
+        all_vis = "1"*self.map.CN
+        best_time = 9999999999999
+        for key,tb in self.TB.items():
+            vis = key[0]
+            last_node_num = key[1]
+        
+            if vis == all_vis :
+                self.goalFlag = 1
+                if tb.flightTime < best_time:
+                    best_last_node_num = last_node_num
+                    best_time = tb.flightTime
+    
+        if self.goalFlag == 1:
+            self.bestRoute.append(best_last_node_num)
+            now_node_num = best_last_node_num
+            now_vis = all_vis
+            while True:
+                if now_node_num == 0:
+                    break
 
+                previous_node_num = self.TB[now_vis,now_node_num].previous
+                self.bestRoute.append(previous_node_num)
+
+                now_vis = self.criateMinusVisited(now_vis,now_node_num)
+                now_node_num = previous_node_num
+
+            self.bestRoute.reverse()
+            print(self.bestRoute)
+            print("flight time :",self.TB[all_vis,best_last_node_num].flightTime,"battery consumption :",self.TB[all_vis,best_last_node_num].BC)
+        elif self.goalFlag == 0:
+            print("We can't visit all victim.\n")
+
+    def plotRouteFig(self):
+        if self.goalFlag == 0 or len(self.bestRoute) <= 1:
+            return False
+        fig = pyplot.figure()
+        ax = fig.add_subplot(111)
+
+        ax.plot(*[0,0], 'o', color="blue") #  デポのプロット
+        for p in self.map.customerList: #  ノードのプロット
+            ax.plot(*[p.x,p.y], 'o', color="red")
+
+        for i in range(len(self.bestRoute)-1): #  矢印のプロット
+            fromNode = self.map.nodeList[self.bestRoute[i]]
+            toNode = self.map.nodeList[self.bestRoute[i+1]]
+            ax.annotate('', xy=[toNode.x,toNode.y], xytext=[fromNode.x,fromNode.y],
+                        arrowprops=dict(shrink=0, width=1, headwidth=8, 
+                                        headlength=10, connectionstyle='arc3',
+                                        facecolor='gray', edgecolor='gray')
+                        )
+
+        ax.set_xlim([0, 1.2*self.map.maxXY])
+        ax.set_ylim([0, 1.2*self.map.maxXY])
+
+        pyplot.show()
+        
+
+if __name__ == "__main__":
+    map.readMapFile("../data/map2.txt")
 
     
