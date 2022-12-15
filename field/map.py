@@ -9,9 +9,17 @@ from . import node #  singleDPを実行するときはこうしないとエラ�
 
 class Map:
 
-    def __init__(self) -> None:
-        self.cList = [] #  顧客リスト
+    def __init__(self,mapFilePass) -> None:
+        self.customerList = [] #  配達先のノードリスト
+        self.nodeList = [] #  customerList + デポ
+        self.dMatrix = [] #  距離の表
+        self.CN = 0
         self.N = 0
+        self.maxXY = 0
+        self.depo = node.Node(0,0,0,0)
+        self.nodeList.append(self.depo)
+        self.readMapFile(mapFilePass)
+        self.criateDmatrix()
     
     #  ランダムマップ作成
     # node = 'x座標, y座標, demand 'のリスト作成
@@ -35,7 +43,7 @@ class Map:
     def readMapFile(self,fileName):
         f = open(fileName,'r')
         next(f) #  ファイルの2行目から読み込み
-        node_num = 1 #  ２進文字列にしたとき、-node_numで場所を参照できるように
+        nodeNum = 1 #  nodeListのインデックスと対応
 
         while True: #  マップのファイルから顧客リストを作成
             nodeStr = f.readline() #  ファイルから1行読む
@@ -43,17 +51,33 @@ class Map:
                 break
             nodeList = nodeStr.split(',') #  カンマで分割してx座標,y座標,demandを取得
             x = int(nodeList[0])
+            if x > self.maxXY:
+                self.maxXY = x
             y = int(nodeList[1])
+            if y > self.maxXY:
+                self.maxXY = y
             demand = float(nodeList[2])
-            n = node.Node(node_num,x,y,demand) #  nodeクラスに変換
-            self.cList.append(n) #  顧客リストに追加
-            print("node_num : ", node_num, ", x : ", x, ", y : ", y, ", demand : ", demand)
-            node_num += 1
+            n = node.Node(nodeNum,x,y,demand) #  nodeクラスに変換
+            self.customerList.append(n) #  顧客リストに追加
+            self.nodeList.append(n)
+            print("node_num : ", nodeNum, ", x : ", x, ", y : ", y, ", demand : ", demand)
+            nodeNum += 1
+            self.CN += 1
+        self.N = nodeNum
         f.close()
 
-    @staticmethod
-    def distance(from_node,to_node):
-        return math.sqrt((from_node.x - to_node.x)**2 + (from_node.y - to_node.y)**2)
+    def distance(self,fromNodeNum,toNodeNum):
+        fromNode = self.nodeList[fromNodeNum]
+        toNode = self.nodeList[toNodeNum]
+        return math.sqrt((fromNode.x - toNode.x)**2 + (fromNode.y - toNode.y)**2)
+
+    def criateDmatrix(self):
+        for i in range(self.N):
+            dList = []
+            for j in range(self.N):
+                d = self.distance(i,j)
+                dList.append(d)
+            self.dMatrix.append(dList)
 
 if __name__ == "__main__":
     Map.criateMapFile(5)
