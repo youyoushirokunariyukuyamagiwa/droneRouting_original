@@ -10,9 +10,9 @@ from .value import Value
 
 class SingleDP:
     
-    def __init__(self,drone,mapFilePass) -> None:
+    def __init__(self,drone,mapFilePath) -> None:
         self.drone = drone
-        self.map = Map(mapFilePass)
+        self.map = Map(mapFilePath)
         self.visitedList = []
         self.TB = {}
         self.goalFlag = 0
