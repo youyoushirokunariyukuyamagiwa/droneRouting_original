@@ -7,6 +7,7 @@ class Vtol(airframe.Airframe):
         self.battery_j = 11188800000  # 機体として正しい値は1118880(maxの7割)
         self.takeOffTime_s = 120  # 離着陸にかかる時間
         self.speed_m_s = 13.89  # 機体速度50km/h
+        self.maxPayload_kg = 10
     
     #固定翼モードでの1秒あたりの消費電力(J)
     def consum_f_high(self,payload_kg):
