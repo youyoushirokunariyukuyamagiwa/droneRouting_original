@@ -78,7 +78,7 @@ class SingleDP:
         else:
             return False
 
-    def criateTB(self):
+    def criateTBobjectT(self):
         s='0'+str(self.map.CN)+'b'
         zeroVis = format(0,s) #  どこにも訪れていない状態のvisited作成
 
@@ -110,6 +110,49 @@ class SingleDP:
                                     self.visitedList.append(new_vis)
                                 new_FT = self.map.dMatrix[now_node.nodeNum][next_node.nodeNum]/self.drone.speed_m_s + self.TB[vis,now_node.nodeNum].FT + self.drone.takeOffTime_s
                                 if (new_vis,next_node.nodeNum) not in self.TB.keys() or self.TB[new_vis,next_node.nodeNum].FT > new_FT:
+                                    self.TB[new_vis,next_node.nodeNum] = Value(now_node.nodeNum,new_FT,new_BC,payload+next_node.demand)
+
+        for key,tb in self.TB.items():
+            vis = key[0]
+            last_node_num = key[1]
+
+            last_distance = self.map.dMatrix[last_node_num][0]
+            last_flightTime = last_distance/self.drone.speed_m_s + self.drone.takeOffTime_s
+            last_BC = self.drone.calcBattery_f(last_distance,0)
+            self.TB[vis,last_node_num] = Value(tb.previous, tb.FT+last_flightTime, tb.BC+last_BC,tb.DP)
+
+    def criateTBobjectB(self):
+        s='0'+str(self.map.CN)+'b'
+        zeroVis = format(0,s) #  どこにも訪れていない状態のvisited作成
+
+        for first in self.map.customerList: #  始めのデポ→各ノードまで
+            newVis = self.criatePlusVisited(zeroVis,first.nodeNum)
+
+            d = self.map.dMatrix[0][first.nodeNum] #  デポ→nextまでの距離
+            ft = d/self.drone.speed_m_s + self.drone.takeOffTime_s
+            payload = first.demand #  nextに行くときのpayload
+
+            BC = self.drone.calcBattery_f(d,payload)
+            if BC < self.drone.battery_j and payload < self.drone.maxPayload_kg : #  バッテリー制限とペイロード制限
+                value = Value(0,ft,BC,payload)
+                self.TB[newVis,first.nodeNum] = value
+                self.visitedList.append(newVis)
+
+        for vis in self.visitedList:
+            for next_node in self.map.customerList:
+                if self.checkVisited(vis,next_node.nodeNum) == False:
+                    for now_node in self.map.customerList:
+                        if self.checkVisited(vis,now_node.nodeNum) == True:
+
+                            payload = self.TB[vis,now_node.nodeNum].DP
+                            new_BC = self.checkVisitable(now_node.nodeNum,next_node.nodeNum,vis,payload)
+                            if new_BC :#  now→nextに行くことが確定
+                                #print(vis,next_node.nodeNum)
+                                new_vis = self.criatePlusVisited(vis,next_node.nodeNum)
+                                if new_vis not in self.visitedList:
+                                    self.visitedList.append(new_vis)
+                                new_FT = self.map.dMatrix[now_node.nodeNum][next_node.nodeNum]/self.drone.speed_m_s + self.TB[vis,now_node.nodeNum].FT + self.drone.takeOffTime_s
+                                if (new_vis,next_node.nodeNum) not in self.TB.keys() or self.TB[new_vis,next_node.nodeNum].BC > new_BC:
                                     self.TB[new_vis,next_node.nodeNum] = Value(now_node.nodeNum,new_FT,new_BC,payload+next_node.demand)
 
         for key,tb in self.TB.items():

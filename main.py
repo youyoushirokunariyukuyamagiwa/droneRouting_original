@@ -8,7 +8,7 @@ def main1():
     drone = Vtol()
     routing = SingleDP(drone,"data/map2.txt")
 
-    routing.criateTB()
+    routing.criateTBobjectB()
     routing.printBestRoute()
     routing.plotRouteFig()
 
