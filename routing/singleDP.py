@@ -68,7 +68,7 @@ class SingleDP:
         return BC+bc
 
     def checkVisitable(self,fromNodeNum:Node,toNodeNum:Node,nowVis:str,payload):
-        if payload + self.map.nodeList[toNodeNum].demand > self.drone.maxPayload_g: #  現在の出発時搭載ペイロード量＋toNode需要量が機体の搭載可能量を超えているならfalse
+        if payload + self.map.nodeList[toNodeNum].demand > self.drone.maxPayload_kg: #  現在の出発時搭載ペイロード量＋toNode需要量が機体の搭載可能量を超えているならfalse
             return False
         plsBC = self.calcPlusBC(fromNodeNum,toNodeNum,nowVis)
         if plsBC == None:
@@ -150,7 +150,7 @@ class SingleDP:
 
             self.bestRoute.reverse()
             print(self.bestRoute)
-            print("flight time :",self.TB[all_vis,best_last_node_num].FT,"battery consumption :",self.TB[all_vis,best_last_node_num].BC)
+            print("flight time :",self.TB[all_vis,best_last_node_num].FT,"battery consumption :",self.TB[all_vis,best_last_node_num].BC,"departure payload:",self.TB[all_vis,best_last_node_num].DP)
         elif self.goalFlag == 0:
             print("We can't visit all victim.\n")
 
