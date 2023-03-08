@@ -197,6 +197,39 @@ class SingleDP:
         elif self.goalFlag == 0:
             print("We can't visit all victim.\n")
 
+    def printBestRouteObjectB(self):
+        all_vis = "1"*self.map.CN
+        best_BC = 9999999999999
+        for key,tb in self.TB.items():
+            vis = key[0]
+            last_node_num = key[1]
+
+            if vis == all_vis :
+                self.goalFlag = 1
+                if tb.BC < best_BC:
+                    best_last_node_num = last_node_num
+                    best_BC = tb.BC
+
+        if self.goalFlag == 1:
+            self.bestRoute.append(best_last_node_num)
+            now_node_num = best_last_node_num
+            now_vis = all_vis
+            while True:
+                if now_node_num == 0:
+                    break
+
+                previous_node_num = self.TB[now_vis,now_node_num].previous
+                self.bestRoute.append(previous_node_num)
+
+                now_vis = self.criateMinusVisited(now_vis,now_node_num)
+                now_node_num = previous_node_num
+
+            self.bestRoute.reverse()
+            print(self.bestRoute)
+            print("flight time :",self.TB[all_vis,best_last_node_num].FT,"battery consumption :",self.TB[all_vis,best_last_node_num].BC,"departure payload:",self.TB[all_vis,best_last_node_num].DP)
+        elif self.goalFlag == 0:
+            print("We can't visit all victim.\n")
+
     def plotRouteFig(self):
         if self.goalFlag == 0 or len(self.bestRoute) <= 1:
             return False
