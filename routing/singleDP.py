@@ -164,6 +164,47 @@ class SingleDP:
             last_BC = self.drone.calcBattery_f(last_distance,0)
             self.TB[vis,last_node_num] = Value(tb.previous, tb.FT+last_flightTime, tb.BC+last_BC,tb.DP)
 
+    def criateOpposeVis(self,vis:str):
+        vislst = list(vis)
+        for i in range(len(vislst)):
+            if vislst[i] == "0":
+                vislst[i] = "1"
+            elif vislst[i] == "1":
+                vislst[i] = "0"
+            else:
+                print("visitedeが正しくありません")
+                return False
+
+        opposeVis = "".join(vislst)
+        return opposeVis
+    """
+    def completeRouting(self):
+        compFlightDict = {}
+        TBkeyList = self.TB.keys()
+        TBkeyList.sort(reverse=True) #  visが埋まっているものから決定する
+        for key in TBkeyList:
+            vis = key[0]
+            compFlightDict[vis] = []
+            opposeVis = self.criateOpposeVis(vis)
+            while True:
+                if opposeVis in compFlightDict.keys(): #  すでに記録されたフライトの組み合わせなら
+                    break
+                if opposeVis in self.TB.keys  ここ正しくない。理想はTBを最適にしたkeyがvisだけの状態のものを使うこと
+                    compFlightDict[vis].append(opposeVis)
+                    break
+                else:
+                    while True:
+                        num = opposeVisを十進数に
+                        num -= 1
+                        newVis = numを2進数に
+                        if newVis in self.TB.keys ここもうえと同様
+                            compFlightDict[vis].append(newVis)
+                            opposeVis = opposeVisからnewVisを引いたvisを出す関数
+                            break
+        if opposeVis == False:
+            return False
+    """
+
     def printBestRoute(self):
         all_vis = "1"*self.map.CN
         best_time = 9999999999999

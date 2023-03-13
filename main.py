@@ -23,5 +23,5 @@ def main2():
     DDR.plotFig()
 
 if __name__ == "__main__":
-    main1()
+    main2()
 
