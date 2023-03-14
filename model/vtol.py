@@ -6,8 +6,11 @@ class Vtol(airframe.Airframe):
         super().__init__()
         self.battery_j = 11188800000  # 機体として正しい値は1118880(maxの7割)
         self.takeOffTime_s = 120  # 離着陸にかかる時間
-        self.speed_m_s = 13.89  # 機体速度50km/h
-        self.maxPayload_kg = 10
+        self.highSpeed_m_s = 13.89  # 機体速度50km/h
+        self.lowSpeed_m_s = 13.89  # 機体速度50km/h
+        #self.highSpeed_m_s = 22.2  # 機体速度80km/h
+        #self.lowSpeed_m_s = 5.6  # 機体速度20km/h
+        self.maxPayload_kg = 0.8
     
     #固定翼モードでの1秒あたりの消費電力(J)
     def consum_f_high(self,payload_kg):
@@ -22,20 +25,20 @@ class Vtol(airframe.Airframe):
 
     def calcBattery_f(self,distance,payload_kg):
         if distance <= 200:
-            battery = self.consum_f_low(payload_kg)*distance/self.speed_m_s + self.consum_h(payload_kg)
+            battery = self.consum_f_low(payload_kg)*distance/self.lowSpeed_m_s + self.consum_h(payload_kg)
         else:
-            battery = self.consum_f_low(payload_kg)*200/self.speed_m_s + self.consum_f_high(payload_kg)*(distance-200)/self.speed_m_s + self.consum_h(payload_kg)
+            battery = self.consum_f_low(payload_kg)*200/self.lowSpeed_m_s + self.consum_f_high(payload_kg)*(distance-200)/self.highSpeed_m_s + self.consum_h(payload_kg)
 
         return battery
 
     def addPayloadBC(self,distance,payload_kg):
         if distance < 200:
-            battery = 385 * payload_kg * distance/self.speed_m_s + 385 * payload_kg*self.takeOffTime_s
+            battery = 385 * payload_kg * distance/self.lowSpeed_m_s + 385 * payload_kg*self.takeOffTime_s
         else:
             if payload_kg < 0.4:
-                battery = 385*payload_kg*200/self.speed_m_s+ 495 * (distance-200)/self.speed_m_s + 385 * payload_kg*self.takeOffTime_s
+                battery = 385*payload_kg*200/self.lowSpeed_m_s+ 495 * (distance-200)/self.highSpeed_m_s + 385 * payload_kg*self.takeOffTime_s
             elif payload_kg >= 0.4:
-                battery = 385*payload_kg*200/self.speed_m_s + 59.167 * payload_kg * (distance-200)/self.speed_m_s + 385 * payload_kg*self.takeOffTime_s
+                battery = 385*payload_kg*200/self.lowSpeed_m_s + 59.167 * payload_kg * (distance-200)/self.highSpeed_m_s + 385 * payload_kg*self.takeOffTime_s
 
         return battery
 
@@ -43,5 +46,8 @@ class Vtol(airframe.Airframe):
     def consum_h(self,payload_kg):
         return self.takeOffTime_s * (385 * payload_kg + 2211.8)
 
-    
-    
+    def calcFlightTime(self,distance):
+        if distance < 200:
+            return distance/self.lowSpeed_m_s + self.takeOffTime_s
+        else :
+            return 200/self.lowSpeed_m_s + (distance - 200)/self.highSpeed_m_s + self.takeOffTime_s

@@ -86,7 +86,7 @@ class SingleDP:
             newVis = self.criatePlusVisited(zeroVis,first.nodeNum)
 
             d = self.map.dMatrix[0][first.nodeNum] #  デポ→nextまでの距離
-            ft = d/self.drone.speed_m_s + self.drone.takeOffTime_s
+            ft = self.drone.calcFlightTime(d)
             payload = first.demand #  nextに行くときのpayload
 
             BC = self.drone.calcBattery_f(d,payload)
@@ -108,7 +108,7 @@ class SingleDP:
                                 new_vis = self.criatePlusVisited(vis,next_node.nodeNum)
                                 if new_vis not in self.visitedList:
                                     self.visitedList.append(new_vis)
-                                new_FT = self.map.dMatrix[now_node.nodeNum][next_node.nodeNum]/self.drone.speed_m_s + self.TB[vis,now_node.nodeNum].FT + self.drone.takeOffTime_s
+                                new_FT = self.drone.calcFlightTime(self.map.dMatrix[now_node.nodeNum][next_node.nodeNum]) + self.TB[vis,now_node.nodeNum].FT
                                 if (new_vis,next_node.nodeNum) not in self.TB.keys() or self.TB[new_vis,next_node.nodeNum].FT > new_FT:
                                     self.TB[new_vis,next_node.nodeNum] = Value(now_node.nodeNum,new_FT,new_BC,payload+next_node.demand)
 
@@ -117,7 +117,7 @@ class SingleDP:
             last_node_num = key[1]
 
             last_distance = self.map.dMatrix[last_node_num][0]
-            last_flightTime = last_distance/self.drone.speed_m_s + self.drone.takeOffTime_s
+            last_flightTime = self.drone.calcFlightTime(last_distance)
             last_BC = self.drone.calcBattery_f(last_distance,0)
             self.TB[vis,last_node_num] = Value(tb.previous, tb.FT+last_flightTime, tb.BC+last_BC,tb.DP)
 
@@ -129,7 +129,7 @@ class SingleDP:
             newVis = self.criatePlusVisited(zeroVis,first.nodeNum)
 
             d = self.map.dMatrix[0][first.nodeNum] #  デポ→nextまでの距離
-            ft = d/self.drone.speed_m_s + self.drone.takeOffTime_s
+            ft = self.drone.calcFlightTime(d)
             payload = first.demand #  nextに行くときのpayload
 
             BC = self.drone.calcBattery_f(d,payload)
@@ -151,7 +151,7 @@ class SingleDP:
                                 new_vis = self.criatePlusVisited(vis,next_node.nodeNum)
                                 if new_vis not in self.visitedList:
                                     self.visitedList.append(new_vis)
-                                new_FT = self.map.dMatrix[now_node.nodeNum][next_node.nodeNum]/self.drone.speed_m_s + self.TB[vis,now_node.nodeNum].FT + self.drone.takeOffTime_s
+                                new_FT = self.drone.calcFlightTime(self.map.dMatrix[now_node.nodeNum][next_node.nodeNum]) + self.TB[vis,now_node.nodeNum].FT
                                 if (new_vis,next_node.nodeNum) not in self.TB.keys() or self.TB[new_vis,next_node.nodeNum].BC > new_BC:
                                     self.TB[new_vis,next_node.nodeNum] = Value(now_node.nodeNum,new_FT,new_BC,payload+next_node.demand)
 
@@ -160,7 +160,7 @@ class SingleDP:
             last_node_num = key[1]
 
             last_distance = self.map.dMatrix[last_node_num][0]
-            last_flightTime = last_distance/self.drone.speed_m_s + self.drone.takeOffTime_s
+            last_flightTime = self.drone.calcFlightTime(last_distance)
             last_BC = self.drone.calcBattery_f(last_distance,0)
             self.TB[vis,last_node_num] = Value(tb.previous, tb.FT+last_flightTime, tb.BC+last_BC,tb.DP)
 
@@ -205,7 +205,7 @@ class SingleDP:
             return False
     """
 
-    def printBestRoute(self):
+    def printBestRouteObjectT(self):
         all_vis = "1"*self.map.CN
         best_time = 9999999999999
         for key,tb in self.TB.items():
