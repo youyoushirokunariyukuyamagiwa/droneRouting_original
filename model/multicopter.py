@@ -6,7 +6,7 @@ class Multi(airframe.Airframe):
         super().__init__()
         self.battery_j = 11188800000  # 機体として正しい値は321120*9/1.4 321120が機体そのままのバッテリー量の7割、今回機体を比較するにあたって機体重量を基準に合わせて9/1.4倍してるのでその他のパラメータも9/1.4倍
         # ↑　2064342.,,,
-        self.takeOffTime_s = 120  # 離着陸にかかる時間
+        self.takeOffTime_s = 60  # 離着陸にかかる時間
         self.highSpeed_m_s = 13.89  # 機体速度50km/h
         self.lowSpeed_m_s = 13.89  # 機体速度50km/h
         self.maxPayload_kg = 0.8  #もともとの積載可能量120gの9/1.4倍

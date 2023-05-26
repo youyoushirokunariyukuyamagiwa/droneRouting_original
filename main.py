@@ -23,5 +23,5 @@ def main2():
     DDR.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
 
 if __name__ == "__main__":
-    main2()
+    main1()
 
