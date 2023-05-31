@@ -5,7 +5,7 @@
 import random
 import math
 from . import node #  singleDPを実行するときはこうしないとエラーでる
-#import node #  新しいマップファイルを作成するときはこっちじゃないとエラー出る
+#import node #  新しいマップファイルを作成するときはこっちじゃないとエラー出る(main0をつくったのでもういらないはず)
 
 class Map:
 
@@ -26,13 +26,13 @@ class Map:
     @staticmethod
     def criateMapFile(N:int):
         #f = open('../data/map1.txt','w') #  fieldのディレクトリから実行する場合はこっち
-        f = open('data/map3.txt','w') #  mainの階層から実行するときはこっち
+        f = open('data/map2.txt','w') #  mainの階層から実行するときはこっち
         f.write("x-axis, y-axis, demand")
 
         for i in range(N) :
             f.write("\n")
-            x = random.randint(100,1000)
-            y = random.randint(100,1000)
+            x = random.randint(1,10)
+            y = random.randint(1,10)
             demand = random.randint(1,2)/10
             print("node_num : ", i+1, ", x : ", x, ", y : ", y, ", demand : ", demand,)
             nodeStr = str(x)+","+str(y)+","+str(demand)
@@ -79,6 +79,3 @@ class Map:
                 d = self.distance(i,j)
                 dList.append(d)
             self.dMatrix.append(dList)
-
-if __name__ == "__main__":
-    Map.criateMapFile(8)

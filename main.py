@@ -2,8 +2,11 @@ from routing.singleDP import SingleDP
 from routing.doubleDroneRouting import DoubleDR
 from model.multicopter import Multi
 from model.vtol import Vtol
+from field.map import Map
 
-
+def main0():
+    Map.criateMapFile(3)
+    
 def main1():
     drone = Vtol()
     routing = SingleDP(drone,"data/map2.txt")
@@ -23,5 +26,5 @@ def main2():
     DDR.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
 
 if __name__ == "__main__":
-    main1()
+    main0()
 
