@@ -199,6 +199,7 @@ class DoubleDR:
             opposeLastNode = self.bestLastNodeEachVis2.get(opposeVis)
 
                                                                                
+            #こっちは評価基準MAXじゃなくて合計値
             if minBC == None or minBC > self.route1.TB[vis,lastNode].BC + self.route2.TB[opposeVis,opposeLastNode].BC:
                 bestFlight1 = (vis,lastNode)
                 bestFlight2 = (opposeVis,opposeLastNode)
