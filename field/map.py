@@ -25,14 +25,15 @@ class Map:
     # node = 'x座標, y座標, demand 'のリスト作成
     @staticmethod
     def criateMapFile(N:int):
-        f = open('../data/map1.txt','w')
+        #f = open('../data/map1.txt','w') #  fieldのディレクトリから実行する場合はこっち
+        f = open('data/map3.txt','w') #  mainの階層から実行するときはこっち
         f.write("x-axis, y-axis, demand")
 
         for i in range(N) :
             f.write("\n")
-            x = random.randint(100,300)
-            y = random.randint(100,300)
-            demand = random.randint(1,4)/10
+            x = random.randint(100,1000)
+            y = random.randint(100,1000)
+            demand = random.randint(1,2)/10
             print("node_num : ", i+1, ", x : ", x, ", y : ", y, ", demand : ", demand,)
             nodeStr = str(x)+","+str(y)+","+str(demand)
             f.write(nodeStr)
@@ -80,4 +81,4 @@ class Map:
             self.dMatrix.append(dList)
 
 if __name__ == "__main__":
-    Map.criateMapFile(5)
+    Map.criateMapFile(8)

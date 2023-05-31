@@ -11,8 +11,8 @@ class DoubleDR:
         self.drone2 = drone2
         self.route1 = SingleDP(drone1,mapFilePath)
         self.route2 = SingleDP(drone2,mapFilePath)
-        self.route1.criateTB()
-        self.route2.criateTB()
+        self.route1.criateTBobjectB()
+        self.route2.criateTBobjectB()
         self.bestLastNodeEachVis = {}
         self.flightDrone1 = None#  drone1の担当フライトの最後のvistedとlastNodeNumのタプル
         self.flightDrone2 = None
@@ -23,26 +23,49 @@ class DoubleDR:
         self.drone2FT = None
         self.drone2BC = None
 
-    #各visitedの中で最短のルートを見つけ、そのlast_node_numを辞書に格納
-    def findBestLastNodeEachVis(self):
+    #各visitedの中でFT最短のルートを見つけ、そのlast_node_numを辞書に格納
+    def findMinTimeLastNodeEachVis(self):
         sort1 = sorted(self.route1.TB.items())
-        #sort2 = sorted(self.route2.TB.items())
-        #for key,tb in sort:
+        #sort2 = sorted(self.route2.TB.items())  # TBをkey（vis,lastNode）で00001から始まるソート
+        #for key,tb in sort1:
         #    print(key[0],key[1])
         
         s='0'+str(self.route1.map.CN)+'b'
         lastVis = format(1,s)
-        minFTlastNode = 1
+        minBClastNode = 1
         for key,tb in sort1:
             vis = key[0]
             last_node_num = key[1]
             if lastVis == vis :# 一緒の間は値を比べて最短を保持
-                if tb.flightTime < self.route1.TB[vis,minFTlastNode].flightTime:
-                    minFTlastNode = last_node_num
+                if tb.FT < self.route1.TB[vis,minBClastNode].FT:
+                    minBClastNode = last_node_num
             else: # 変わったら変わる前のvisとそのvisの最短のlast_node_numを辞書に登録
-                self.bestLastNodeEachVis[lastVis] = minFTlastNode
+                self.bestLastNodeEachVis[lastVis] = minBClastNode
                 lastVis = vis
-                minFTlastNode = last_node_num
+                minBClastNode = last_node_num
+        
+        #for vis,last_node_num in self.bestLastNodeEachVis.items():
+        #    print("vis",vis,"  last node",last_node_num)
+
+    def findMinBCLastNodeEachVis(self):
+        sort1 = sorted(self.route1.TB.items())
+        #sort2 = sorted(self.route2.TB.items())  # TBをkey（vis,lastNode）で00001から始まるソート
+        #for key,tb in sort1:
+        #    print(key[0],key[1])
+        
+        s='0'+str(self.route1.map.CN)+'b'
+        lastVis = format(1,s)
+        minBClastNode = 1
+        for key,tb in sort1:
+            vis = key[0]
+            last_node_num = key[1]
+            if lastVis == vis :# 一緒の間は値を比べて最短を保持
+                if tb.BC < self.route1.TB[vis,minBClastNode].BC:
+                    minBClastNode = last_node_num
+            else: # 変わったら変わる前のvisとそのvisの最短のlast_node_numを辞書に登録
+                self.bestLastNodeEachVis[lastVis] = minBClastNode
+                lastVis = vis
+                minBClastNode = last_node_num
         
         #for vis,last_node_num in self.bestLastNodeEachVis.items():
         #    print("vis",vis,"  last node",last_node_num)
@@ -61,18 +84,22 @@ class DoubleDR:
         opposeVis = "".join(vislst)
         return opposeVis
 
-    def findBest2flight(self):
-        self.findBestLastNodeEachVis()
-        minTime = None
+    def findMinTime2flight(self):
+        self.findMinTimeLastNodeEachVis()
+        minBC = None
         for vis,lastNode in self.bestLastNodeEachVis.items():
             opposeVis = self.criateOpposeVis(vis)
+
             if opposeVis == False:
                 return False
+            if opposeVis not in self.bestLastNodeEachVis:
+                continue
+
             opposeLastNode = self.bestLastNodeEachVis[opposeVis]
-            if minTime == None or minTime > max(self.route1.TB[vis,lastNode].flightTime,self.route2.TB[opposeVis,opposeLastNode].flightTime):
+            if minBC == None or minBC > max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
                 bestFlight1 = (vis,lastNode)
                 bestFlight2 = (opposeVis,opposeLastNode)
-                minTime = max(self.route1.TB[vis,lastNode].flightTime,self.route2.TB[opposeVis,opposeLastNode].flightTime)
+                minBC = max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT)
         
         if self.route1.TB[bestFlight1[0],bestFlight1[1]].BC > self.route2.TB[bestFlight1[0],bestFlight1[1]].BC:
             diff1 = self.route1.TB[bestFlight1[0],bestFlight1[1]].BC - self.route2.TB[bestFlight1[0],bestFlight1[1]].BC
@@ -101,9 +128,88 @@ class DoubleDR:
                 self.flightDrone1 = bestFlight1
                 self.flightDrone2 = bestFlight2
 
-        self.drone1FT = self.route1.TB[self.flightDrone1[0],self.flightDrone1[1]].flightTime
+        self.drone1FT = self.route1.TB[self.flightDrone1[0],self.flightDrone1[1]].FT
         self.drone1BC = self.route1.TB[self.flightDrone1[0],self.flightDrone1[1]].BC
-        self.drone2FT = self.route2.TB[self.flightDrone2[0],self.flightDrone2[1]].flightTime
+        self.drone2FT = self.route2.TB[self.flightDrone2[0],self.flightDrone2[1]].FT
+        self.drone2BC = self.route2.TB[self.flightDrone2[0],self.flightDrone2[1]].BC
+
+        # drone1のフライトをリストに格納
+        self.flightDrone1List.append(self.flightDrone1[1])# 最後のカスタマーを追加
+        now_vis = self.flightDrone1[0]
+        now_node_num = self.flightDrone1[1]
+        while True:
+            if now_node_num == 0:
+                break
+
+            previous_node_num = self.route1.TB[now_vis,now_node_num].previous
+            self.flightDrone1List.append(previous_node_num)
+
+            now_vis = self.route1.criateMinusVisited(now_vis,now_node_num)
+            now_node_num = previous_node_num
+        self.flightDrone1List.reverse()
+
+        # drone2のフライトをリストに格納
+        self.flightDrone2List.append(self.flightDrone2[1])# 最後のカスタマーを追加
+        now_vis = self.flightDrone2[0]
+        now_node_num = self.flightDrone2[1]
+        while True:
+            if now_node_num == 0:
+                break
+
+            previous_node_num = self.route2.TB[now_vis,now_node_num].previous
+            self.flightDrone2List.append(previous_node_num)
+
+            now_vis = self.route2.criateMinusVisited(now_vis,now_node_num)
+            now_node_num = previous_node_num
+        self.flightDrone2List.reverse()
+    
+    def findMinBC2flight(self):
+        self.findMinBCLastNodeEachVis()
+        minBC = None
+        for vis,lastNode in self.bestLastNodeEachVis.items():
+            opposeVis = self.criateOpposeVis(vis)
+
+            if opposeVis == False:
+                return False
+            if opposeVis not in self.bestLastNodeEachVis:
+                continue
+
+            opposeLastNode = self.bestLastNodeEachVis[opposeVis]
+            if minBC == None or minBC > max(self.route1.TB[vis,lastNode].BC,self.route2.TB[opposeVis,opposeLastNode].BC):
+                bestFlight1 = (vis,lastNode)
+                bestFlight2 = (opposeVis,opposeLastNode)
+                minBC = max(self.route1.TB[vis,lastNode].BC,self.route2.TB[opposeVis,opposeLastNode].BC)
+        
+        if self.route1.TB[bestFlight1[0],bestFlight1[1]].BC > self.route2.TB[bestFlight1[0],bestFlight1[1]].BC:
+            diff1 = self.route1.TB[bestFlight1[0],bestFlight1[1]].BC - self.route2.TB[bestFlight1[0],bestFlight1[1]].BC
+            if self.route1.TB[bestFlight2[0],bestFlight2[1]].BC > self.route2.TB[bestFlight2[0],bestFlight2[1]].BC:
+                diff2 = self.route1.TB[bestFlight2[0],bestFlight2[1]].BC - self.route2.TB[bestFlight2[0],bestFlight2[1]].BC
+                if diff1 < diff2 :
+                    self.flightDrone2 = bestFlight1
+                    self.flightDrone1 = bestFlight2
+                else:
+                    self.flightDrone2 = bestFlight2
+                    self.flightDrone1 = bestFlight1
+            else:
+                self.flightDrone1 = bestFlight2
+                self.flightDrone2 = bestFlight1
+        else:
+            diff1 = self.route2.TB[bestFlight1[0],bestFlight1[1]].BC - self.route1.TB[bestFlight1[0],bestFlight1[1]].BC
+            if self.route1.TB[bestFlight2[0],bestFlight2[1]].BC < self.route2.TB[bestFlight2[0],bestFlight2[1]].BC:
+                diff2 = self.route2.TB[bestFlight2[0],bestFlight2[1]].BC - self.route1.TB[bestFlight2[0],bestFlight2[1]].BC
+                if diff2 < diff1 :
+                    self.flightDrone2 = bestFlight1
+                    self.flightDrone1 = bestFlight2
+                else:
+                    self.flightDrone2 = bestFlight2
+                    self.flightDrone1 = bestFlight1
+            else:
+                self.flightDrone1 = bestFlight1
+                self.flightDrone2 = bestFlight2
+
+        self.drone1FT = self.route1.TB[self.flightDrone1[0],self.flightDrone1[1]].FT
+        self.drone1BC = self.route1.TB[self.flightDrone1[0],self.flightDrone1[1]].BC
+        self.drone2FT = self.route2.TB[self.flightDrone2[0],self.flightDrone2[1]].FT
         self.drone2BC = self.route2.TB[self.flightDrone2[0],self.flightDrone2[1]].BC
 
         # drone1のフライトをリストに格納

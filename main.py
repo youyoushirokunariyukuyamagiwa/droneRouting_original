@@ -8,19 +8,19 @@ def main1():
     drone = Vtol()
     routing = SingleDP(drone,"data/map2.txt")
 
-    routing.criateTB()
-    routing.printBestRoute()
+    routing.criateTBobjectT()
+    routing.printBestRouteObjectT()
     routing.plotRouteFig()
 
 def main2():
     drone1 = Multi()
     drone2 = Vtol()
-    DDR = DoubleDR(drone1,drone2,"data/map2.txt")
-    DDR.findBest2flight()
-    print(DDR.flightDrone1List,"ft ",DDR.drone1FT,"BC ",DDR.drone1BC)
-    print(DDR.flightDrone2List,"ft ",DDR.drone2FT,"BC ",DDR.drone2BC)
+    DDR = DoubleDR(drone1,drone2,"data/map3.txt")
+    DDR.findMinBC2flight()
+    print("multi:",DDR.flightDrone1List,"ft ",DDR.drone1FT,"BC ",DDR.drone1BC)
+    print("vtol2:",DDR.flightDrone2List,"ft ",DDR.drone2FT,"BC ",DDR.drone2BC)
 
-    DDR.plotFig()
+    DDR.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
 
 if __name__ == "__main__":
     main1()
