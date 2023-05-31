@@ -31,8 +31,8 @@ class Map:
 
         for i in range(N) :
             f.write("\n")
-            x = random.randint(1,10)
-            y = random.randint(1,10)
+            x = random.randint(1,8)
+            y = random.randint(1,8)
             demand = random.randint(1,2)/10
             print("node_num : ", i+1, ", x : ", x, ", y : ", y, ", demand : ", demand,)
             nodeStr = str(x)+","+str(y)+","+str(demand)

@@ -11,7 +11,7 @@ class Multi(airframe.Airframe):
 
     # 前進飛行での1分あたりの消費電力割合（％/分)
     def consum_f(self,payload_kg):
-        return 5.534*payload_kg + 100/62
+        return 5.534*payload_kg + 100/61
     
     # 離着陸１回あたりでのバッテリー消費割合（％）
     def consum_h(self,payload_kg):

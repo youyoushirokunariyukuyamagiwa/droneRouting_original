@@ -8,12 +8,18 @@ def main0():
     Map.criateMapFile(3)
     
 def main1():
-    drone = Vtol()
-    routing = SingleDP(drone,"data/map2.txt")
+    drone1 = Multi()
+    drone2 = Vtol()
+    routing1 = SingleDP(drone1,"data/map2.txt")
+    routing2 = SingleDP(drone2,"data/map2.txt")
 
-    routing.criateTBobjectT()
-    routing.printBestRouteObjectT()
-    routing.plotRouteFig()
+    routing1.criateTBobjectB()
+    routing1.printBestRouteObjectB()
+    routing1.plotRouteFig()
+    
+    routing2.criateTBobjectB()
+    routing2.printBestRouteObjectB()
+    routing2.plotRouteFig()
 
 def main2():
     drone1 = Multi()
@@ -27,4 +33,5 @@ def main2():
 
 if __name__ == "__main__":
     main0()
+    main1()
 
