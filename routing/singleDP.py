@@ -104,9 +104,15 @@ class SingleDP:
                     for now_node in self.map.customerList:
                         if self.checkVisited(vis,now_node.nodeNum) == True:
 
-                            payload_kg = self.TB[vis,now_node.nodeNum].DP
+                            
+                            if self.TB.get((vis,now_node.nodeNum)) != None:
+                                payload_kg = self.TB.get((vis,now_node.nodeNum)).DP
+                            else:
+                                continue
+                            #payload_kg = self.TB[vis,now_node.nodeNum].DP
+                            
                             new_BC = self.checkVisitable(now_node.nodeNum,next_node.nodeNum,vis,payload_kg)
-                            if new_BC :#  now→nextに行くことが確定
+                            if new_BC != False :#  now→nextに行くことが確定
                                 #print(vis,next_node.nodeNum)
                                 new_vis = self.criatePlusVisited(vis,next_node.nodeNum)
                                 if new_vis not in self.visitedList:
@@ -147,9 +153,15 @@ class SingleDP:
                     for now_node in self.map.customerList:
                         if self.checkVisited(vis,now_node.nodeNum) == True:
 
-                            payload_kg = self.TB[vis,now_node.nodeNum].DP
+                            
+                            if self.TB.get((vis,now_node.nodeNum)) != None:
+                                payload_kg = self.TB.get((vis,now_node.nodeNum)).DP
+                            else:
+                                continue
+                            
+                            #payload_kg = self.TB[vis,now_node.nodeNum].DP
                             new_BC = self.checkVisitable(now_node.nodeNum,next_node.nodeNum,vis,payload_kg)
-                            if new_BC :#  now→nextに行くことが確定
+                            if new_BC != False :#  now→nextに行くことが確定
                                 #print(vis,next_node.nodeNum)
                                 new_vis = self.criatePlusVisited(vis,next_node.nodeNum)
                                 if new_vis not in self.visitedList:
