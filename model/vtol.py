@@ -4,50 +4,28 @@ class Vtol(airframe.Airframe):
 
     def __init__(self):
         super().__init__()
-        self.battery_j = 11188800000  # 機体として正しい値は1118880(maxの7割)
-        self.takeOffTime_s = 60  # 離着陸にかかる時間
-        self.highSpeed_m_s = 13.89  # 機体速度50km/h
-        self.lowSpeed_m_s = 13.89  # 機体速度50km/h
-        #self.highSpeed_m_s = 22.2  # 機体速度80km/h
-        #self.lowSpeed_m_s = 5.6  # 機体速度20km/h
-        self.maxPayload_kg = 0.8
+        self.battery_p = 100  # 機体として正しい値は1118880(maxの7割)
+        self.takeOffTime_m = 1  # 離着陸にかかる時間
+        self.speed_km_m = 1.083  # 機体速度65km/h
+        self.maxPayload_kg = 1
     
-    #固定翼モードでの1秒あたりの消費電力(J)
-    def consum_f_high(self,payload_kg):
-        if payload_kg < 0.4:
-            return 495
-        elif payload_kg >= 0.4:
-            return 59.167 * payload_kg + 475.67
+    #固定翼モードでの1分あたりの消費電力割合(％/分)
+    def consum_f(self,payload_kg):
+        return 0.309102509*payload_kg+84.926/40
 
-    #マルチコプターモードでの1秒あたりの消費電力(J)
-    def consum_f_low(self,payload_kg):
-        return 385 * payload_kg + 2211.8
-
-    def calcBattery_f(self,distance,payload_kg):
-        if distance <= 200:
-            battery = self.consum_f_low(payload_kg)*distance/self.lowSpeed_m_s + self.consum_h(payload_kg)
-        else:
-            battery = self.consum_f_low(payload_kg)*200/self.lowSpeed_m_s + self.consum_f_high(payload_kg)*(distance-200)/self.highSpeed_m_s + self.consum_h(payload_kg)
-
-        return battery
-
-    def addPayloadBC(self,distance,payload_kg):
-        if distance < 200:
-            battery = 385 * payload_kg * distance/self.lowSpeed_m_s + 385 * payload_kg*self.takeOffTime_s
-        else:
-            if payload_kg < 0.4:
-                battery = 385*payload_kg*200/self.lowSpeed_m_s+ 495 * (distance-200)/self.highSpeed_m_s + 385 * payload_kg*self.takeOffTime_s
-            elif payload_kg >= 0.4:
-                battery = 385*payload_kg*200/self.lowSpeed_m_s + 59.167 * payload_kg * (distance-200)/self.highSpeed_m_s + 385 * payload_kg*self.takeOffTime_s
-
-        return battery
-
-    #マルチコプターモードでの離着陸の消費電力(J)
+    #回転翼モードで行う離着陸1回あたり（30×２s)にかかる消費電力割合（％/１回）
     def consum_h(self,payload_kg):
-        return self.takeOffTime_s * (385 * payload_kg + 2211.8)
+        return 1.8721*payload_kg+15.07
 
-    def calcFlightTime(self,distance):
-        if distance < 200:
-            return distance/self.lowSpeed_m_s + self.takeOffTime_s
-        else :
-            return 200/self.lowSpeed_m_s + (distance - 200)/self.highSpeed_m_s + self.takeOffTime_s
+    def calcBattery_f(self,distance_km,payload_kg):
+        battery = self.consum_f(payload_kg)*distance_km/self.s + self.consum_h(payload_kg)
+
+        return battery
+    
+    def addPayloadBC(self,distance_km,addPayload_kg):
+        battery = 0.309102509*addPayload_kg*distance_km/self.speed_km_m + 1.8721*addPayload_kg
+
+        return battery
+
+    def calcFlightTime(self,distance_km):
+        return distance_km/self.s + self.takeOffTime_m
