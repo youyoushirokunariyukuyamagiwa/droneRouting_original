@@ -1,3 +1,4 @@
+import sys
 from matplotlib import pyplot
 from field.map import Map
 from routing.singleDP import SingleDP
@@ -27,24 +28,37 @@ class DoubleDR:
     #各visitedの中でFT最短のルートを見つけ、そのlast_node_numを辞書に格納
     def findMinTimeLastNodeEachVis(self):
         sort1 = sorted(self.route1.TB.items())
-        #sort2 = sorted(self.route2.TB.items())  # TBをkey（vis,lastNode）で00001から始まるソート
+        sort2 = sorted(self.route2.TB.items())  # TBをkey（vis,lastNode）で00001から始まるソート
         #for key,tb in sort1:
         #    print(key[0],key[1])
         
         s='0'+str(self.route1.map.CN)+'b'
         lastVis = format(1,s)
-        minBClastNode = 1
+        minFTlastNode = 1
         for key,tb in sort1:
             vis = key[0]
             last_node_num = key[1]
             if lastVis == vis :# 一緒の間は値を比べて最短を保持
-                if tb.FT < self.route1.TB[vis,minBClastNode].FT:
-                    minBClastNode = last_node_num
+                if tb.FT < self.route1.TB[vis,minFTlastNode].FT:
+                    minFTlastNode = last_node_num
             else: # 変わったら変わる前のvisとそのvisの最短のlast_node_numを辞書に登録
-                self.bestLastNodeEachVis[lastVis] = minBClastNode
+                self.bestLastNodeEachVis1[lastVis] = minFTlastNode
                 lastVis = vis
-                minBClastNode = last_node_num
+                minFTlastNode = last_node_num
         
+        s='0'+str(self.route1.map.CN)+'b'
+        lastVis = format(1,s)
+        minFTlastNode = 1
+        for key,tb in sort2:
+            vis = key[0]
+            last_node_num = key[1]
+            if lastVis == vis :# 一緒の間は値を比べて最短を保持
+                if tb.FT < self.route2.TB[vis,minFTlastNode].FT:
+                    minFTlastNode = last_node_num
+            else: # 変わったら変わる前のvisとそのvisの最短のlast_node_numを辞書に登録
+                self.bestLastNodeEachVis2[lastVis] = minFTlastNode
+                lastVis = vis
+                minFTlastNode = last_node_num
         #for vis,last_node_num in self.bestLastNodeEachVis.items():
         #    print("vis",vis,"  last node",last_node_num)
 
@@ -100,9 +114,14 @@ class DoubleDR:
         opposeVis = "".join(vislst)
         return opposeVis
 
-    def findMinTime2flight(self):
+    def findMinFT2flight(self):
         self.findMinTimeLastNodeEachVis()
         minBC = None
+        minSumBC = None
+        
+        bestFlight1 = (None,None)
+        bestFlight2 = (None,None)
+        
         for vis,lastNode in self.bestLastNodeEachVis1.items():
             opposeVis = self.criateOpposeVis(vis)
 
@@ -112,12 +131,25 @@ class DoubleDR:
                 continue
 
             opposeLastNode = self.bestLastNodeEachVis2[opposeVis]
-            if minBC == None or minBC > max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
+            if minBC == None or minBC >= max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
+                if minBC == max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
+                    if minSumBC > self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT:
+                        bestFlight1 = (vis,lastNode)
+                        bestFlight2 = (opposeVis,opposeLastNode)
+                        #minBC = max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT)
+                        minSumBC = self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT
                 bestFlight1 = (vis,lastNode)
                 bestFlight2 = (opposeVis,opposeLastNode)
                 minBC = max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT)
+                minSumBC = self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT
         
         #FTのMAX値が同じ場合FTの合計値も比べたほうがいいかも。(FT1,FT2)=(5,4),(5,2)が同じ評価になってるから。
+        if bestFlight1 == (None,None) and bestFlight2 == (None,None):
+            print("we can't visit all victim with 2 flight.")
+            sys.exit()
+        else:
+            self.flightDrone1 = bestFlight1
+            self.flightDrone2 = bestFlight2
         """
         if self.route1.TB[bestFlight1[0],bestFlight1[1]].BC > self.route2.TB[bestFlight1[0],bestFlight1[1]].BC:
             diff1 = self.route1.TB[bestFlight1[0],bestFlight1[1]].BC - self.route2.TB[bestFlight1[0],bestFlight1[1]].BC
@@ -188,6 +220,10 @@ class DoubleDR:
     def findMinBC2flight(self):
         self.findMinBCLastNodeEachVis()
         minBC = None
+
+        bestFlight1 = (None,None)
+        bestFlight2 = (None,None)
+        
         for vis,lastNode in self.bestLastNodeEachVis1.items():
             opposeVis = self.criateOpposeVis(vis)
 
@@ -197,17 +233,20 @@ class DoubleDR:
                 continue
 
             opposeLastNode = self.bestLastNodeEachVis2.get(opposeVis)
-
-                                                                               
+            
             #こっちは評価基準MAXじゃなくて合計値
             if minBC == None or minBC > self.route1.TB[vis,lastNode].BC + self.route2.TB[opposeVis,opposeLastNode].BC:
                 bestFlight1 = (vis,lastNode)
                 bestFlight2 = (opposeVis,opposeLastNode)
-
+                
                 minBC = self.route1.TB[vis,lastNode].BC + self.route2.TB[opposeVis,opposeLastNode].BC
         
-        self.flightDrone1 = bestFlight1
-        self.flightDrone2 = bestFlight2
+        if bestFlight1 == (None,None) and bestFlight2 == (None,None):
+            print("we can't visit all victim with 2 flight.")
+            sys.exit()
+        else:
+            self.flightDrone1 = bestFlight1
+            self.flightDrone2 = bestFlight2
         """
         #これはfindMinFT2flight()でしかいらんはず
         if self.route1.TB[bestFlight1[0],bestFlight1[1]].BC > self.route2.TB[bestFlight1[0],bestFlight1[1]].BC:

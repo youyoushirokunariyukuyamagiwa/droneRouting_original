@@ -5,7 +5,7 @@ from model.vtol import Vtol
 from field.map import Map
 
 def main0():
-    Map.criateMapFile(5)
+    Map.criateMapFile(6)
     
 def main1():
     drone1 = Multi()
