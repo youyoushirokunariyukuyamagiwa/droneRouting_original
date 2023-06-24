@@ -116,8 +116,8 @@ class DoubleDR:
 
     def findMinFT2flight(self):
         self.findMinTimeLastNodeEachVis()
-        minBC = None
-        minSumBC = None
+        minFT = None
+        minSumFT = None
         
         bestFlight1 = (None,None)
         bestFlight2 = (None,None)
@@ -131,17 +131,17 @@ class DoubleDR:
                 continue
 
             opposeLastNode = self.bestLastNodeEachVis2[opposeVis]
-            if minBC == None or minBC >= max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
-                if minBC == max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
-                    if minSumBC > self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT:
+            if minFT == None or minFT >= max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
+                if minFT == max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT):
+                    if minSumFT > self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT:
                         bestFlight1 = (vis,lastNode)
                         bestFlight2 = (opposeVis,opposeLastNode)
-                        #minBC = max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT)
-                        minSumBC = self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT
+                        #minFT = max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT)
+                        minSumFT = self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT
                 bestFlight1 = (vis,lastNode)
                 bestFlight2 = (opposeVis,opposeLastNode)
-                minBC = max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT)
-                minSumBC = self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT
+                minFT = max(self.route1.TB[vis,lastNode].FT,self.route2.TB[opposeVis,opposeLastNode].FT)
+                minSumFT = self.route1.TB[vis,lastNode].FT + self.route2.TB[opposeVis,opposeLastNode].FT
         
         #FTのMAX値が同じ場合FTの合計値も比べたほうがいいかも。(FT1,FT2)=(5,4),(5,2)が同じ評価になってるから。
         if bestFlight1 == (None,None) and bestFlight2 == (None,None):
@@ -219,7 +219,7 @@ class DoubleDR:
     
     def findMinBC2flight(self):
         self.findMinBCLastNodeEachVis()
-        minBC = None
+        minFT = None
 
         bestFlight1 = (None,None)
         bestFlight2 = (None,None)
@@ -235,11 +235,11 @@ class DoubleDR:
             opposeLastNode = self.bestLastNodeEachVis2.get(opposeVis)
             
             #こっちは評価基準MAXじゃなくて合計値
-            if minBC == None or minBC > self.route1.TB[vis,lastNode].BC + self.route2.TB[opposeVis,opposeLastNode].BC:
+            if minFT == None or minFT > self.route1.TB[vis,lastNode].BC + self.route2.TB[opposeVis,opposeLastNode].BC:
                 bestFlight1 = (vis,lastNode)
                 bestFlight2 = (opposeVis,opposeLastNode)
                 
-                minBC = self.route1.TB[vis,lastNode].BC + self.route2.TB[opposeVis,opposeLastNode].BC
+                minFT = self.route1.TB[vis,lastNode].BC + self.route2.TB[opposeVis,opposeLastNode].BC
         
         if bestFlight1 == (None,None) and bestFlight2 == (None,None):
             print("we can't visit all victim with 2 flight.")

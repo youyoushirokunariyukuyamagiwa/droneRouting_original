@@ -13,16 +13,17 @@ def main1():
     routing1 = SingleDP(drone1,"data/map2.txt")
     routing2 = SingleDP(drone2,"data/map2.txt")
 
-    routing1.criateTBobjectB()
-    routing1.printBestRouteObjectB()
+    routing2.criateTBobjectT()
+    routing2.printBestRouteObjectT()
+    routing2.plotRouteFig()
+    
+    routing1.criateTBobjectT()
+    routing1.printBestRouteObjectT()
     routing1.plotRouteFig()
     
-    routing2.criateTBobjectB()
-    routing2.printBestRouteObjectB()
-    routing2.plotRouteFig()
 
 def main2():
-    drone1 = Multi()
+    drone1 = Vtol()
     drone2 = Vtol()
     DDR = DoubleDR(drone1,drone2,"data/map2.txt")
     DDR.findMinBC2flight()
