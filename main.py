@@ -23,10 +23,10 @@ def main1():
     
 
 def main2():
-    drone1 = Vtol()
+    drone1 = Multi()
     drone2 = Vtol()
     DDR = DoubleDR(drone1,drone2,"data/map2.txt")
-    DDR.findMinBC2flight()
+    DDR.findMinFT2flight()
     print("multi:",DDR.flightDrone1List,"ft ",DDR.drone1FT,"BC ",DDR.drone1BC)
     print("vtol2:",DDR.flightDrone2List,"ft ",DDR.drone2FT,"BC ",DDR.drone2BC)
 
