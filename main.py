@@ -7,6 +7,13 @@ from field.map import Map
 def main0():
     Map.criateMapFile(6)
     
+def main01():
+    drone1 = Multi()
+    for i in range(11):
+        BCof1m = drone1.consum_f(i/10)
+        print(i/10,BCof1m)
+    
+    
 def main1():
     drone1 = Multi()
     drone2 = Vtol()
@@ -34,5 +41,5 @@ def main2():
 
 if __name__ == "__main__":
     #main0()
-    main2()
+    main01()
 

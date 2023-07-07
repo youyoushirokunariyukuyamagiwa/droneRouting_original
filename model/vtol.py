@@ -14,7 +14,7 @@ class Vtol(airframe.Airframe):
         return 0.334314163*payload_kg+2.296212974
 
     #回転翼モードで行う離着陸1回あたり（30×２s)にかかる消費電力割合（％/１回）
-    def consum_h(self,payload_kg):
+    def consum_h(self,payload_kg):#30sで計算してある式なので×self.takeOffTime_mなどはいらない
         return 1.0124*payload_kg+8.1491
 
     def calcBattery_f(self,distance_km,payload_kg):
