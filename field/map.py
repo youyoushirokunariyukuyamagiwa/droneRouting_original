@@ -61,7 +61,7 @@ class Map:
             n = node.Node(nodeNum,x,y,demand) #  nodeクラスに変換
             self.customerList.append(n) #  顧客リストに追加
             self.nodeList.append(n)
-            print("node_num : ", nodeNum, ", x : ", x, ", y : ", y, ", demand : ", demand)
+            #print("node_num : ", nodeNum, ", x : ", x, ", y : ", y, ", demand : ", demand)
             nodeNum += 1
             self.CN += 1
         self.N = nodeNum

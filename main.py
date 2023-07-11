@@ -3,6 +3,7 @@ from routing.doubleDroneRouting import DoubleDR
 from model.multicopter import Multi
 from model.vtol import Vtol
 from field.map import Map
+import openpyxl
 
 def main0():
     Map.criateMapFile(6)
@@ -20,13 +21,27 @@ def main1():
     routing1 = SingleDP(drone1,"data/map2.txt")
     routing2 = SingleDP(drone2,"data/map2.txt")
 
-    routing2.criateTBobjectT()
-    routing2.printBestRouteObjectT()
-    routing2.plotRouteFig()
+    routing1.criateTBobjectB()
+    print("multi")
+    routing1.printBestRouteObjectB()
+    #print(routing1.goalFlag)
+    #routing1.plotRouteFig()
+
+    routing2.criateTBobjectB()
+    print("vtol")
+    routing2.printBestRouteObjectB()
+    #print(routing2.goalFlag)
+    #routing2.plotRouteFig()
     
-    routing1.criateTBobjectT()
-    routing1.printBestRouteObjectT()
-    routing1.plotRouteFig()
+    if routing1.goalFlag == 1 and routing2.goalFlag == 1 :
+        ddr = DoubleDR(drone1,drone2,"data/map2.txt")
+        ddr.flightDrone1List = routing1.bestRoute
+        ddr.flightDrone2List = routing2.bestRoute
+        ddr.plotFig()
+    elif routing1.goalFlag == 1 and routing2.goalFlag == 0:
+        routing1.plotRouteFig()
+    elif routing1.goalFlag == 0 and routing2.goalFlag == 1:
+        routing2.plotRouteFig()
     
 
 def main2():
@@ -40,6 +55,6 @@ def main2():
     DDR.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
 
 if __name__ == "__main__":
-    #main0()
-    main01()
+    main0()
+    main1()
 
