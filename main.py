@@ -5,8 +5,8 @@ from model.vtol import Vtol
 from field.map import Map
 import openpyxl
 
-def main0():
-    Map.criateMapFile(6)
+def main0(path):
+    Map.criateMapFile(10,path)
     
 def main01():
     drone1 = Multi()
@@ -14,12 +14,15 @@ def main01():
         BCof1m = drone1.consum_f(i/10)
         print(i/10,BCof1m)
     
+def main02(path):
+    map = Map(path)
+    map.showMap()
     
-def main1():
+def main1(mapPath):
     drone1 = Multi()
     drone2 = Vtol()
-    routing1 = SingleDP(drone1,"data/map2.txt")
-    routing2 = SingleDP(drone2,"data/map2.txt")
+    routing1 = SingleDP(drone1,mapPath)
+    routing2 = SingleDP(drone2,mapPath)
 
     routing1.criateTBobjectB()
     print("multi")
@@ -34,7 +37,7 @@ def main1():
     #routing2.plotRouteFig()
     
     if routing1.goalFlag == 1 and routing2.goalFlag == 1 :
-        ddr = DoubleDR(drone1,drone2,"data/map2.txt")
+        ddr = DoubleDR(drone1,drone2,mapPath)
         ddr.flightDrone1List = routing1.bestRoute
         ddr.flightDrone2List = routing2.bestRoute
         ddr.plotFig()
@@ -44,17 +47,17 @@ def main1():
         routing2.plotRouteFig()
     
 
-def main2():
-    drone1 = Multi()
+def main2(mapPath):
+    drone1 = Vtol()
     drone2 = Vtol()
-    DDR = DoubleDR(drone1,drone2,"data/map2.txt")
+    DDR = DoubleDR(drone1,drone2,mapPath)
     DDR.findMinFT2flight()
-    print("multi:",DDR.flightDrone1List,"ft ",DDR.drone1FT,"BC ",DDR.drone1BC)
-    print("vtol2:",DDR.flightDrone2List,"ft ",DDR.drone2FT,"BC ",DDR.drone2BC)
+    print("multi(blue):",DDR.flightDrone1List,"ft ",DDR.drone1FT,"BC ",DDR.drone1BC)
+    print("vtol2(green):",DDR.flightDrone2List,"ft ",DDR.drone2FT,"BC ",DDR.drone2BC)
 
     DDR.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
 
 if __name__ == "__main__":
-    main0()
-    main1()
+    #main0('data/map6.txt')
+    main02('data/map3.txt')
 
