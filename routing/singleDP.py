@@ -303,6 +303,7 @@ class SingleDP:
         ax.plot(*[0,0], 'o', color="blue") #  デポのプロット
         for p in self.map.customerList: #  ノードのプロット
             ax.plot(*[p.x,p.y], 'o', color="red")
+            ax.text(p.x, p.y,p.demand)
 
         for i in range(len(self.bestRoute)-1): #  矢印のプロット
             fromNode = self.map.nodeList[self.bestRoute[i]]

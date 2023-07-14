@@ -6,7 +6,7 @@ from field.map import Map
 import openpyxl
 
 def main0(path):
-    Map.criateMapFile(10,path)
+    Map.criateMapFile(5,path)
     
 def main01():
     drone1 = Multi()
@@ -48,16 +48,16 @@ def main1(mapPath):
     
 
 def main2(mapPath):
-    drone1 = Vtol()
+    drone1 = Multi()
     drone2 = Vtol()
     DDR = DoubleDR(drone1,drone2,mapPath)
-    DDR.findMinFT2flight()
+    DDR.findMinBC2flight()
     print("multi(blue):",DDR.flightDrone1List,"ft ",DDR.drone1FT,"BC ",DDR.drone1BC)
-    print("vtol2(green):",DDR.flightDrone2List,"ft ",DDR.drone2FT,"BC ",DDR.drone2BC)
+    print("vtol(green):",DDR.flightDrone2List,"ft ",DDR.drone2FT,"BC ",DDR.drone2BC)
 
     DDR.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
 
 if __name__ == "__main__":
-    #main0('data/map6.txt')
-    main02('data/map3.txt')
+    main0('data/map7.txt')
+    main1('data/map7.txt')
 
