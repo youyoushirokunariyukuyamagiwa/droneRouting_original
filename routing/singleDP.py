@@ -17,6 +17,8 @@ class SingleDP:
         self.TB = {} #  TB[状態(vis),最後に訪れたノード番号] = value(最後から2番目に訪れたノード番号,この状態(vis)でこのlastnodeのときの最短時間,それにかかるバッテリー消費量)
         self.goalFlag = 0
         self.bestRoute = [0]
+        self.FT = None
+        self.BC = None
 
     #  visited2の状態でnode_numがすでに訪問済みかどうか
     def checkVisited(self,visited:str, nodeNum:int):
@@ -192,6 +194,7 @@ class SingleDP:
 
         opposeVis = "".join(vislst)
         return opposeVis
+    
     """
     def completeRouting(self):
         compFlightDict = {}
@@ -250,6 +253,9 @@ class SingleDP:
             self.bestRoute.reverse()
             print(self.bestRoute)
             print("flight time :",self.TB[all_vis,best_last_node_num].FT,"battery consumption :",self.TB[all_vis,best_last_node_num].BC,"departure payload:",self.TB[all_vis,best_last_node_num].DP)
+            self.FT = self.TB[all_vis,best_last_node_num].FT
+            self.BC = self.TB[all_vis,best_last_node_num].BC
+            
         elif self.goalFlag == 0:
             print("We can't visit all victim.\n")
 
@@ -283,6 +289,8 @@ class SingleDP:
             self.bestRoute.reverse()
             print(self.bestRoute)
             print("flight time :",self.TB[all_vis,best_last_node_num].FT,"battery consumption :",self.TB[all_vis,best_last_node_num].BC,"departure payload:",self.TB[all_vis,best_last_node_num].DP)
+            self.FT = self.TB[all_vis,best_last_node_num].FT
+            self.BC = self.TB[all_vis,best_last_node_num].BC
         elif self.goalFlag == 0:
             print("We can't visit all victim.\n")
 
@@ -295,6 +303,7 @@ class SingleDP:
         ax.plot(*[0,0], 'o', color="blue") #  デポのプロット
         for p in self.map.customerList: #  ノードのプロット
             ax.plot(*[p.x,p.y], 'o', color="red")
+            ax.text(p.x, p.y,p.demand)
 
         for i in range(len(self.bestRoute)-1): #  矢印のプロット
             fromNode = self.map.nodeList[self.bestRoute[i]]

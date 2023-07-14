@@ -6,6 +6,7 @@ import random
 import math
 from . import node #  singleDPを実行するときはこうしないとエラーでる
 #import node #  新しいマップファイルを作成するときはこっちじゃないとエラー出る(main0をつくったのでもういらないはず)
+from matplotlib import pyplot
 
 class Map:
 
@@ -24,9 +25,10 @@ class Map:
     #  ランダムマップ作成
     # node = 'x座標, y座標, demand 'のリスト作成
     @staticmethod
-    def criateMapFile(N:int):
+    def criateMapFile(N:int,path):
         #f = open('../data/map1.txt','w') #  fieldのディレクトリから実行する場合はこっち
-        f = open('data/map2.txt','w') #  mainの階層から実行するときはこっち
+        #f = open('data/map3.txt','w') #  mainの階層から実行するときはこっち
+        f = open(path,'w')
         f.write("x-axis, y-axis, demand")
 
         for i in range(N) :
@@ -61,11 +63,25 @@ class Map:
             n = node.Node(nodeNum,x,y,demand) #  nodeクラスに変換
             self.customerList.append(n) #  顧客リストに追加
             self.nodeList.append(n)
-            print("node_num : ", nodeNum, ", x : ", x, ", y : ", y, ", demand : ", demand)
+            #print("node_num : ", nodeNum, ", x : ", x, ", y : ", y, ", demand : ", demand)
             nodeNum += 1
             self.CN += 1
         self.N = nodeNum
         f.close()
+        
+    def showMap(self):
+        fig = pyplot.figure()
+        ax = fig.add_subplot(111)
+
+        ax.plot(*[0,0], 'o', color="blue") #  デポのプロット
+        for p in self.customerList: #  ノードのプロット
+            ax.plot(*[p.x,p.y], 'o', color="red")
+            ax.text(p.x, p.y,p.demand)
+            
+        ax.set_xlim([0, 1.2*self.maxXY])
+        ax.set_ylim([0, 1.2*self.maxXY])
+
+        pyplot.show()
 
     def distance(self,fromNodeNum,toNodeNum):
         fromNode = self.nodeList[fromNodeNum]

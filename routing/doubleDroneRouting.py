@@ -322,6 +322,7 @@ class DoubleDR:
         ax.plot(*[0,0], 'o', color="black") #  デポのプロット
         for p in self.route1.map.customerList: #  ノードのプロット
             ax.plot(*[p.x,p.y], 'o', color="red")
+            ax.text(p.x, p.y,p.demand)
 
         for i in range(len(self.flightDrone1List)-1): #  drone1の矢印のプロット
             fromNode = self.route1.map.nodeList[self.flightDrone1List[i]]
