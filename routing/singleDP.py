@@ -53,7 +53,6 @@ class SingleDP:
             demand = self.map.nodeList[nextNodeNum].demand
             BC = nowValue.BC + self.drone.calcBattery_f(distance,demand)
 
-
         tmpNodeNum = nowNodeNum
         tmpVis = nowVis
         bc =  0
@@ -318,8 +317,45 @@ class SingleDP:
         ax.set_ylim([0, 1.2*self.map.maxXY])
 
         pyplot.show()
-        
 
+    def plotAnalysis(self):
+        if self.goalFlag == 0:
+            print("This routing is not completed yet")
+            return False
+        
+        x_d_list = []
+        y_b_list = []
+        
+        index = 0
+        sumDistance = 0
+        x_d_list.append(sumDistance)
+        remainBattery = 100
+        y_b_list.append(remainBattery)
+        payload = self.map.calcSumDemand()
+        
+        
+        while True:
+            node1_num = self.bestRoute[index]
+            node2_num = self.bestRoute[index+1]
+            
+            d = self.map.dMatrix[node1_num][node2_num]
+            b = self.drone.calcBattery_f(d,payload)
+            
+            sumDistance += d
+            remainBattery -= b
+            x_d_list.append(sumDistance)
+            y_b_list.append(remainBattery)
+            
+            if node2_num == 0:
+                break
+            
+            index += 1
+            payload -= self.map.nodeList[node2_num].demand
+        
+        pyplot.plot(x_d_list,y_b_list)
+        pyplot.show()
+            
+        
 if __name__ == "__main__":
     map.readMapFile("../data/map2.txt")
 

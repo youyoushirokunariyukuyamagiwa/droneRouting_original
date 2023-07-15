@@ -18,6 +18,15 @@ def main02(path):
     map = Map(path)
     map.showMap()
     
+def main03(mapPath):
+    drone = Multi()
+    routing = SingleDP(drone,mapPath)
+    routing.criateTBobjectB()
+    routing.printBestRouteObjectB()
+    
+    routing.plotAnalysis()
+    routing.plotRouteFig()
+    
 def main1(mapPath):
     drone1 = Multi()
     drone2 = Vtol()
@@ -58,6 +67,6 @@ def main2(mapPath):
     DDR.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
 
 if __name__ == "__main__":
-    main0('data/map7.txt')
-    main1('data/map7.txt')
+    #main0('data/map7.txt')
+    main03('data/map2.txt')
 

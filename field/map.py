@@ -83,6 +83,13 @@ class Map:
 
         pyplot.show()
 
+    def calcSumDemand(self):
+        sumDemand = 0
+        for c in self.customerList:
+            sumDemand += c.demand
+        
+        return sumDemand
+        
     def distance(self,fromNodeNum,toNodeNum):
         fromNode = self.nodeList[fromNodeNum]
         toNode = self.nodeList[toNodeNum]
