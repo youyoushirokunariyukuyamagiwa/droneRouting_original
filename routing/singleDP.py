@@ -229,6 +229,10 @@ class SingleDP:
             vis = key[0]
             last_node_num = key[1]
 
+                                                                              
+            print(vis)
+                                                                               
+
             if vis == all_vis :
                 self.goalFlag = 1
                 if tb.FT < best_time:
@@ -257,6 +261,7 @@ class SingleDP:
             
         elif self.goalFlag == 0:
             print("We can't visit all victim.\n")
+            self.map.showMap()
 
     def printBestRouteObjectB(self):
         all_vis = "1"*self.map.CN
@@ -292,6 +297,7 @@ class SingleDP:
             self.BC = self.TB[all_vis,best_last_node_num].BC
         elif self.goalFlag == 0:
             print("We can't visit all victim.\n")
+            self.map.showMap()
 
     def plotRouteFig(self):
         if self.goalFlag == 0 or len(self.bestRoute) <= 1:
@@ -325,6 +331,7 @@ class SingleDP:
         
         x_d_list = []
         y_b_list = []
+        payload_list = []
         
         index = 0
         sumDistance = 0
@@ -332,7 +339,7 @@ class SingleDP:
         remainBattery = 100
         y_b_list.append(remainBattery)
         payload = self.map.calcSumDemand()
-        
+        payload_list.append(payload)
         
         while True:
             node1_num = self.bestRoute[index]
@@ -346,15 +353,31 @@ class SingleDP:
             x_d_list.append(sumDistance)
             y_b_list.append(remainBattery)
             
+            payload -= self.map.nodeList[node2_num].demand
+            payload_list.append(payload)
+            
             if node2_num == 0:
                 break
             
             index += 1
-            payload -= self.map.nodeList[node2_num].demand
-        
-        pyplot.plot(x_d_list,y_b_list)
-        pyplot.show()
             
+        
+        fig = pyplot.figure()
+        ax = fig.add_subplot(111)
+        
+        ax.plot(x_d_list,y_b_list,marker="o", markersize=6,markerfacecolor="blue")
+        for i in range(len(self.bestRoute)):
+            ax.text(x_d_list[i], y_b_list[i],self.map.nodeList[self.bestRoute[i]].demand)
+        
+        #ax.bar(x_d_list,payload_list)#加えて棒グラフで機体の積載量を載せたい
+        #ax.set_ylabel('Axis for bar')
+        
+        
+        ax.set_ylim([0, 100])
+        pyplot.xlabel("distance(km)")
+        pyplot.ylabel("remain Battery(%)")
+        pyplot.grid(True)
+        pyplot.show()
         
 if __name__ == "__main__":
     map.readMapFile("../data/map2.txt")
