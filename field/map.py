@@ -30,14 +30,28 @@ class Map:
         #f = open('data/map3.txt','w') #  mainの階層から実行するときはこっち
         f = open(path,'w')
         f.write("x-axis, y-axis, demand")
+        maplist = []
 
         for i in range(N) :
             f.write("\n")
-            x = random.randint(1,5)
-            y = random.randint(1,5)
+            x_rand = random.randint(1,5)
+            y_rand = random.randint(1,5)
+            
+            while True:
+                flag = 1
+                for x,y in maplist:
+                    if x==x_rand and y==y_rand:
+                        flag = 0
+                        break
+                if flag == 1:
+                    break
+                elif flag == 0:
+                    x_rand = random.randint(1,5)
+                    y_rand = random.randint(1,5)
+            maplist.append((x_rand,y_rand))
             demand = random.randint(1,2)/10
-            print("node_num : ", i+1, ", x : ", x, ", y : ", y, ", demand : ", demand,)
-            nodeStr = str(x)+","+str(y)+","+str(demand)
+            print("node_num : ", i+1, ", x : ", x_rand, ", y : ", y_rand, ", demand : ", demand,)
+            nodeStr = str(x_rand)+","+str(y_rand)+","+str(demand)
             f.write(nodeStr)
 
         f.close()
@@ -83,6 +97,13 @@ class Map:
 
         pyplot.show()
 
+    def calcSumDemand(self):
+        sumDemand = 0
+        for c in self.customerList:
+            sumDemand += c.demand
+        
+        return sumDemand
+        
     def distance(self,fromNodeNum,toNodeNum):
         fromNode = self.nodeList[fromNodeNum]
         toNode = self.nodeList[toNodeNum]
