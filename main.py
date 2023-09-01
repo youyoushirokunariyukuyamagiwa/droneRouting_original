@@ -1,14 +1,22 @@
+import random
+from field.node import Node
+from routing.singleRouting import TravellingSalesmanProblem
 from routing import calcThreshold
 from routing.singleDP import SingleDP
 from routing.doubleDroneRouting import DoubleDR
+from routing.vrp import VRP
 from model.multicopter import Multi
 from model.vtol import Vtol
 from field.map import Map
 import openpyxl
+from matplotlib import pyplot
+from routing.vrpState import VrpState
 
+# map criate
 def main0(path,N):
     Map.criateMapFile(N,path)
     
+# battery consumption in 1 minute with 0.1kg~1.0kg payload
 def main01():
     drone1 = Multi()
     for i in range(11):
@@ -37,6 +45,28 @@ def main04():
     
     calcThreshold.calcThreshold(m,v)
     
+# ルートプロット
+def main05(nodeList):
+    fig = pyplot.figure()
+    ax = fig.add_subplot(111)
+
+    ax.plot(*[0,0], 'o', color="blue") #  デポのプロット
+    for p in nodeList: #  ノードのプロット
+        ax.plot(*[p.x,p.y], 'o', color="red")
+        ax.text(p.x, p.y,p.demand)
+    
+    for i in range(len(nodeList)-1): #  矢印のプロット
+        fromNode = nodeList[i]
+        toNode = nodeList[i+1]
+        ax.annotate('', xy=[toNode.x,toNode.y], xytext=[fromNode.x,fromNode.y],
+                    arrowprops=dict(shrink=0, width=1, headwidth=8, 
+                                    headlength=10, connectionstyle='arc3',
+                                    facecolor='gray', edgecolor='gray')
+                    )
+
+    pyplot.show()
+    
+# 制限の範囲内での1機体でのルーティング
 def main1(mapPath):
     drone1 = Multi()
     drone2 = Vtol()
@@ -65,7 +95,6 @@ def main1(mapPath):
     elif routing1.goalFlag == 0 and routing2.goalFlag == 1:
         routing2.plotRouteFig()
     
-
 def main2(mapPath):
     drone1 = Multi()
     drone2 = Vtol()
@@ -99,14 +128,43 @@ def main2(mapPath):
     #elif DDR3.drone1BC+DDR3.drone2BC < DDR1.drone1BC+DDR1.drone2BC and DDR3.drone1BC+DDR3.drone2BC < DDR2.drone1BC+DDR2.drone2BC:
     #    print("multi+vtol")
     
+# simannelを利用したsingleRoutingを実行実験する
+def main3(drone1,mapFilePath):
+    map = Map(mapFilePath)
+    state = map.nodeList
+    state.append(Node(0,0,0,0))
+    tsp = TravellingSalesmanProblem(state,drone1)
+    state = tsp.anneal()
+    print()
+    #print("長さ",len(state[0]))
+    #for node in state[0]:
+    #    print(node.nodeNum)
+    print(state[1])
+    main05(state[0])
+    
+#3機以上のドローンで
+def main4(mapFilePath,droneNum):
+    map = Map(mapFilePath)
+    customerList = map.customerList#groupingの初期解
+    initial_state = VrpState(droneNum)
+    for c in customerList:
+        initial_state.miniCustomerMap[random.randint(0,droneNum-1)].append(c)
+    for i in range(droneNum):
+        initial_state.calcCost(i)
+    
+    vrp = VRP(initial_state)
+    state = vrp.anneal()
+    print()
+    print(state[1])
+
 if __name__ == "__main__":
     drone1 = Multi()
     drone2 = Vtol()
     #main0('data/double10.txt',8)
     #main03('data/analysis3.txt',drone1)
     #main03('data/analysis3.txt',drone2)
-    main2('data/double4.txt')
-    main02('data/double4.txt')
+    #main2('data/double4.txt')
+    #main02('data/double4.txt')
     #main2('data/double3.txt')
     #main2('data/double4.txt')
     #main2('data/double5.txt')
@@ -115,4 +173,8 @@ if __name__ == "__main__":
     #main2('data/double8.txt')
     #main2('data/double9.txt')
     #main2('data/double10.txt')
+    
+    main4('data/double7.txt',3)
+    
+    
 
