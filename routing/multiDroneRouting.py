@@ -28,6 +28,7 @@ class multiDR:
     
     def serch_best_routing():
         #multi_TSP()とvtol_TSP()を比べていい結果のほうを取得
+        pass
     
     def SA(self):
         #ここから初期解作成

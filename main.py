@@ -128,7 +128,7 @@ def main2(mapPath):
     #elif DDR3.drone1BC+DDR3.drone2BC < DDR1.drone1BC+DDR1.drone2BC and DDR3.drone1BC+DDR3.drone2BC < DDR2.drone1BC+DDR2.drone2BC:
     #    print("multi+vtol")
     
-# singleRoutingを実行実験する
+# simannelを利用したsingleRoutingを実行実験する
 def main3(drone1,mapFilePath):
     map = Map(mapFilePath)
     state = map.nodeList

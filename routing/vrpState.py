@@ -1,5 +1,5 @@
 import random
-from routing.singleRouting import TravellingSalesmanProblem
+from routing.travellingSalesmanProblem import TravellingSalesmanProblem
 from model.multicopter import Multi
 from model.vtol import Vtol
 from field.node import Node
@@ -20,10 +20,10 @@ class VrpState():
         a1 = random.randint(0,self.droneNum-1) # randint(a,b)はa,b含む範囲内の整数をランダムで返す。ミニマップリストのインデックスと対応させるため0~droneNum-1
         b1 = random.randint(0,self.droneNum-1)
             
-        while a1 == b1:
+        while a1 == b1 or len(self.miniCustomerMap[a1]) < 2:#１だと移動したあと空のフライトができてしまうので、最低でもカスタマーは２必要
             a1 = random.randint(0,self.droneNum-1) # randint(a,b)はa,b含む範囲内の整数をランダムで返す。ミニマップリストのインデックスと対応させるため0~droneNum-1
             b1 = random.randint(0,self.droneNum-1)
-        a2 = random.randint(1,len(self.miniCustomerMap[a1])-1)
+        a2 = random.randint(0,len(self.miniCustomerMap[a1])-1)
             
         self.miniCustomerMap[b1].append(self.miniCustomerMap[a1][a2])
         del self.miniCustomerMap[a1][a2]
@@ -35,11 +35,11 @@ class VrpState():
         a1 = random.randint(0,self.droneNum-1) # randint(a,b)はa,b含む範囲内の整数をランダムで返す。ミニマップリストのインデックスと対応させるため0~droneNum-1
         b1 = random.randint(0,self.droneNum-1)
             
-        while a1 == b1:
+        while a1 == b1 or len(self.miniCustomerMap[a1]) < 1 or len(self.miniCustomerMap[b1]) < 1:
             a1 = random.randint(0,self.droneNum-1) # randint(a,b)はa,b含む範囲内の整数をランダムで返す。ミニマップリストのインデックスと対応させるため0~droneNum-1
             b1 = random.randint(0,self.droneNum-1)
-        a2 = random.randint(1,len(self.miniCustomerMap[a1])-1)
-        b2 = random.randint(1,len(self.miniCustomerMap[b1])-1)
+        a2 = random.randint(0,len(self.miniCustomerMap[a1])-1)
+        b2 = random.randint(0,len(self.miniCustomerMap[b1])-1)
             
         self.miniCustomerMap[a1][a2] ,self.miniCustomerMap[b1][b2] = self.miniCustomerMap[b1][b2],self.miniCustomerMap[a1][a2]
         
