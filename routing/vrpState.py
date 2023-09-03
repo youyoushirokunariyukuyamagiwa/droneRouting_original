@@ -1,13 +1,15 @@
 import random
 from routing.travellingSalesmanProblem import TravellingSalesmanProblem
+from routing.singleRouting import SingleRouting
 from model.multicopter import Multi
 from model.vtol import Vtol
 from field.node import Node
 
 class VrpState():
     
-    def __init__(self,droneNum) -> None:
+    def __init__(self,droneNum,allCustomerNum) -> None:
         self.droneNum = droneNum
+        self.allCustomerNum = allCustomerNum
         self.miniCustomerMap = []
         self.cost_list = [] #各フライトのdrone type, flight time, battery consumptionをタプルで保持
         for i in range(droneNum):
@@ -58,26 +60,21 @@ class VrpState():
     
     def calcScore(self):
         sum_BC = 0
-        for n in self.cost_list:
-            sum_BC += n[2]
+        for touple in self.cost_list:
+            sum_BC += touple[2]
         
         return sum_BC
     
     def calcCost(self,map_id):
-        depo = Node(0,0,0,0)
-        initial_flight = [depo]
-        initial_flight.extend(self.miniCustomerMap[map_id])
-        initial_flight.append(depo)
-        tsp1 = TravellingSalesmanProblem(initial_flight,Multi())
-        tsp1.updates = 50
-        tsp1.steps = 2500
-        ans1 = tsp1.anneal()
-        tsp2 = TravellingSalesmanProblem(initial_flight,Vtol())
-        tsp2.updates = 50
-        tsp2.steps = 2500
-        ans2 = tsp2.anneal()
         
-        if ans1[1] > ans2[1]:
-            self.cost_list[map_id] = (Vtol(),tsp2.flight_time,tsp2.battery_consumption)
+        multiRouting = SingleRouting(self.miniCustomerMap[map_id],Multi(),self.allCustomerNum)
+        multiRouting.criateTBobjectB()
+        multiRouting.searchBestRouteObjectB()
+        vtolRouting = SingleRouting(self.miniCustomerMap[map_id],Vtol(),self.allCustomerNum)
+        vtolRouting.criateTBobjectB()
+        vtolRouting.searchBestRouteObjectB()
+        
+        if multiRouting.BC > vtolRouting.BC:
+            self.cost_list[map_id] = (Vtol(),vtolRouting.FT,vtolRouting.BC)
         else :
-            self.cost_list[map_id] = (Multi(),tsp1.flight_time,tsp1.battery_consumption)
+            self.cost_list[map_id] = (Multi(),multiRouting.FT,multiRouting.FT)
