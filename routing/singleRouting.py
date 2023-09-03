@@ -11,8 +11,9 @@ from .value import Value
 
 class SingleRouting():
     
-    def __init__(self,custmerMap,drone) -> None:
+    def __init__(self,custmerMap,drone,allCustomerNum) -> None:
         self.drone = drone
+        self.allCustomerNum = allCustomerNum
         self.custmerMap = custmerMap
         self.visitedList = []#訪問済みノードの集合visを格納。visは各customerに訪問済みかどうかを1 or 0で評価し、リストに格納
         # 例 vis:001101 となる場合、顧客は全部で６カ所あり、ノード番号1,3,4の顧客が訪問済みを表している。これはvis[-(ノード番号)]=1 or 0で確認できる
@@ -21,7 +22,7 @@ class SingleRouting():
         self.FT = None
         self.BC = None
         self.depo = Node(0,0,0,0)
-        self.allVis = None
+        self.all_vis = self.makeAllvisFromCustomerList(self.custmerMap,allCustomerNum)
     
     def checkSumDemand(self,custmerMap):
         sumDemand = 0
@@ -62,7 +63,7 @@ class SingleRouting():
             distance = self.calcDistance(nowNode,nextNode)
             demand = nextNode.demand
             BC = nowValue.BC + self.drone.calcBattery_f(distance,demand)
-
+        
         tmpNode = nowNode
         tmpVis = nowVis
         bc =  0
@@ -75,7 +76,7 @@ class SingleRouting():
             d = self.calcDistance(previousNode,tmpNode)
             bc += self.drone.addPayloadBC(d,demand)
             tmpVis = self.criateMinusVisited(tmpVis,tmpNode.nodeNum)
-            tmpNode = previousNode.nodeNum
+            tmpNode = previousNode
 
         return BC+bc
 
@@ -93,18 +94,20 @@ class SingleRouting():
             return False
     """
     
-    def calcDistance(fromNode,toNode):
+    def calcDistance(self,fromNode,toNode):
         d = math.sqrt((fromNode.x-toNode.x)**2 + (fromNode.y-toNode.y)**2)
         return d
     
-    def makeAllvisFromCustomerList(self,customerList):
-        s='0'+str(len(customerList))+'b'
-        zeroVis = format(0,s)
+    def makeAllvisFromCustomerList(self,customerList,allCustomerNum):
+        #s='0'+str(allCustomerNum)+'b' # s = "04b" みたいになってる
+        #zeroVis = format(0,s) #組み込み関数format()
+        zeroVis = "0".zfill(allCustomerNum)
         for n in customerList:
             zeroVis = self.criatePlusVisited(zeroVis,n.nodeNum)
         
         return zeroVis
     
+    """
     def criateTBobjectT(self):
         s='0'+str(self.map.CN)+'b'
         zeroVis = format(0,s) #  どこにも訪れていない状態のvisited作成
@@ -154,11 +157,13 @@ class SingleRouting():
             last_flightTime = self.drone.calcFlightTime(last_distance)
             last_BC = self.drone.calcBattery_f(last_distance,0)
             self.TB[vis,last_node_num] = Value(tb.previous, tb.FT+last_flightTime, tb.BC+last_BC,tb.DP)
+    """
 
     def criateTBobjectB(self):
-        s='0'+str(len(self.custmerMap))+'b'
-        zeroVis = format(0,s) #  どこにも訪れていない状態のvisited作成
-
+        #s='0'+str(len(self.custmerMap))+'b'
+        #zeroVis = format(0,s) #  どこにも訪れていない状態のvisited作成
+        zeroVis = "0".zfill(self.allCustomerNum)
+        
         for first in self.custmerMap: #  始めのデポ→各ノードまで
             newVis = self.criatePlusVisited(zeroVis,first.nodeNum)
 
@@ -194,10 +199,11 @@ class SingleRouting():
         for key,tb in self.TB.items():
             vis = key[0]
             last_node = key[1]
-            last_distance = self.calcDistance(last_node,self.depo)
-            last_flightTime = self.drone.calcFlightTime(last_distance)
-            last_BC = self.drone.calcBattery_f(last_distance,0)
-            self.TB[vis,last_node] = Value(tb.previous, tb.FT+last_flightTime, tb.BC+last_BC,tb.DP)
+            if vis == self.all_vis:
+                last_distance = self.calcDistance(last_node,self.depo)
+                last_flightTime = self.drone.calcFlightTime(last_distance)
+                last_BC = self.drone.calcBattery_f(last_distance,0)
+                self.TB[vis,last_node] = Value(tb.previous, tb.FT+last_flightTime, tb.BC+last_BC,tb.DP)
 
     """
     def criateOpposeVis(self,vis:str):
@@ -285,21 +291,19 @@ class SingleRouting():
     
     def searchBestRouteObjectB(self):
         best_BC = float('inf')
-        all_vis = self.makeAllvisFromCustomerList(self.custmerMap)
+        
         for key,tb in self.TB.items():
             vis = key[0]
             last_node = key[1]
 
-            if vis == all_vis :
-                #self.goalFlag = 1
+            if vis == self.all_vis :
                 if tb.BC < best_BC:
                     best_last_node = last_node
                     best_BC = tb.BC
 
-        #if self.goalFlag == 1:
         self.bestRoute.append(best_last_node)
         now_node = best_last_node
-        now_vis = all_vis
+        now_vis = self.all_vis
         while True:
             if now_node.nodeNum == 0:
                 break
@@ -313,8 +317,8 @@ class SingleRouting():
         self.bestRoute.reverse()
         #print(self.bestRoute)
         #print("flight time :",self.TB[all_vis,best_last_node].FT,"battery consumption :",self.TB[all_vis,best_last_node].BC,"departure payload:",self.TB[all_vis,best_last_node].DP)
-        self.FT = self.TB[all_vis,best_last_node].FT
-        self.BC = self.TB[all_vis,best_last_node].BC
+        self.FT = self.TB[self.all_vis,best_last_node].FT
+        self.BC = self.TB[self.all_vis,best_last_node].BC
 
 
     def plotRouteFig(self):

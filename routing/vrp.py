@@ -1,6 +1,5 @@
 from simanneal import Annealer
 import random
-from routing.singleRouting import TravellingSalesmanProblem
 from model.multicopter import Multi
 from model.vtol import Vtol
 

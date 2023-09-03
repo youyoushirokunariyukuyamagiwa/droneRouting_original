@@ -1,6 +1,6 @@
 import random
 from field.node import Node
-from routing.singleRouting import TravellingSalesmanProblem
+from routing.travellingSalesmanProblem import TravellingSalesmanProblem
 from routing import calcThreshold
 from routing.singleDP import SingleDP
 from routing.doubleDroneRouting import DoubleDR
@@ -146,7 +146,7 @@ def main3(drone1,mapFilePath):
 def main4(mapFilePath,droneNum):
     map = Map(mapFilePath)
     customerList = map.customerList#groupingの初期解
-    initial_state = VrpState(droneNum)
+    initial_state = VrpState(droneNum,map.CN)
     for c in customerList:
         initial_state.miniCustomerMap[random.randint(0,droneNum-1)].append(c)
     for i in range(droneNum):
