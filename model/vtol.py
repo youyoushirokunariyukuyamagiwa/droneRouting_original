@@ -8,6 +8,7 @@ class Vtol(airframe.Airframe):
         self.takeOffTime_m = 0.5  # 離着陸にかかる時間
         self.speed_km_m = 1.083  # 機体速度65km/h
         self.maxPayload_kg = 1
+        self.type = "vtol"
     
     #固定翼モードでの1分あたりの消費電力割合(％/分)
     def consum_f(self,payload_kg):

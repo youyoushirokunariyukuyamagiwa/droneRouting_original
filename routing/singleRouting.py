@@ -14,14 +14,14 @@ class SingleRouting():
     def __init__(self,custmerMap,drone,allCustomerNum) -> None:
         self.drone = drone
         self.allCustomerNum = allCustomerNum
+        self.depo = Node(0,0,0,0)
         self.custmerMap = custmerMap
         self.visitedList = []#訪問済みノードの集合visを格納。visは各customerに訪問済みかどうかを1 or 0で評価し、リストに格納
         # 例 vis:001101 となる場合、顧客は全部で６カ所あり、ノード番号1,3,4の顧客が訪問済みを表している。これはvis[-(ノード番号)]=1 or 0で確認できる
         self.TB = {}#  TB[状態(vis),最後に訪れたノード番号] = value(最後から2番目に訪れたノード番号,この状態(vis)でこのlastnodeのときの最短時間,それにかかるバッテリー消費量)
-        self.bestRoute = [0]
+        self.bestRoute = [self.depo]
         self.FT = None
         self.BC = None
-        self.depo = Node(0,0,0,0)
         self.all_vis = self.makeAllvisFromCustomerList(self.custmerMap,allCustomerNum)
     
     def checkSumDemand(self,custmerMap):
@@ -301,7 +301,7 @@ class SingleRouting():
                     best_last_node = last_node
                     best_BC = tb.BC
 
-        self.bestRoute.append(best_last_node)
+        self.bestRoute.append(best_last_node)# ここで一回best_last_nodeにアクセスできませんってエラーでた
         now_node = best_last_node
         now_vis = self.all_vis
         while True:
