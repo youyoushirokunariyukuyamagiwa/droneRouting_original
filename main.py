@@ -11,6 +11,7 @@ from field.map import Map
 import openpyxl
 from matplotlib import pyplot
 from routing.vrpState import VrpState
+from routing.singleRouting import SingleRouting
 
 # map criate
 def main0(path,N):
@@ -142,10 +143,22 @@ def main3(drone1,mapFilePath):
     print(state[1])
     main05(state[0])
     
+# 動的計画法のsingleRouting
+def main4(mapFilePath):
+    miniMap = Map(mapFilePath)
+    drone = Vtol()
+    allCustomerNum = miniMap.CN
+    tsp = SingleRouting(miniMap.customerList,drone,allCustomerNum+3)
+    tsp.criateTBobjectB()
+    tsp.searchBestRouteObjectB()
+    for n in tsp.bestRoute:
+        print(n.nodeNum)
+    
 #3機以上のドローンで
-def main4(mapFilePath,droneNum):
+def main5(mapFilePath,droneNum):
     map = Map(mapFilePath)
-    customerList = map.customerList#groupingの初期解
+    customerList = map.customerList
+    #初期解作成
     initial_state = VrpState(droneNum,map.CN)
     for c in customerList:
         initial_state.miniCustomerMap[random.randint(0,droneNum-1)].append(c)
@@ -155,7 +168,12 @@ def main4(mapFilePath,droneNum):
     vrp = VRP(initial_state)
     state = vrp.anneal()
     print()
-    print(state[1])
+    for i in range(droneNum):
+        for n in state[0].eachFlights[i]:
+            print(n.nodeNum,end=" , ")
+        print(state[0].cost_list[i][0].type,"flight time",state[0].cost_list[i][1],"battery consumption",state[0].cost_list[i][2])
+    
+    state[0].plotRouteFig()
 
 if __name__ == "__main__":
     drone1 = Multi()
@@ -174,7 +192,6 @@ if __name__ == "__main__":
     #main2('data/double9.txt')
     #main2('data/double10.txt')
     
-    main4('data/double7.txt',3)
+    main5('data/double8.txt',3)
     
-    
-
+    #main4('data/double8.txt')
