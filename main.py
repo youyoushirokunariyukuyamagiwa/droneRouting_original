@@ -67,6 +67,10 @@ def main05(nodeList):
 
     pyplot.show()
     
+# 広いマップ作成
+def main06(path,N):
+    Map.criateLargeMapFile(45,path)
+    
 # 制限の範囲内での1機体でのルーティング
 def main1(mapPath):
     drone1 = Multi()
@@ -119,6 +123,7 @@ def main2(mapPath):
     DDR3.findMinBC2flight()
     print(drone1.__class__.__name__,"(blue):",DDR3.flightDrone1List,"ft ",DDR3.drone1FT,"BC ",DDR3.drone1BC)
     print(drone2.__class__.__name__,"(green):",DDR3.flightDrone2List,"ft ",DDR3.drone2FT,"BC ",DDR3.drone2BC)
+    
     #print(drone1.__class__.__name__,drone2.__class__.__name__,"BC ",DDR3.drone1BC+DDR3.drone2BC)
     DDR3.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
     
@@ -146,13 +151,15 @@ def main3(drone1,mapFilePath):
 # 動的計画法のsingleRouting
 def main4(mapFilePath):
     miniMap = Map(mapFilePath)
-    drone = Vtol()
+    drone =Multi()
     allCustomerNum = miniMap.CN
     tsp = SingleRouting(miniMap.customerList,drone,allCustomerNum+3)
     tsp.criateTBobjectB()
     tsp.searchBestRouteObjectB()
     for n in tsp.bestRoute:
-        print(n.nodeNum)
+        print(n.nodeNum,end=" , ")
+    print()
+    print("BC",tsp.BC,"FT",tsp.FT)
     
 #3機以上のドローンで
 def main5(mapFilePath,droneNum):
@@ -171,27 +178,16 @@ def main5(mapFilePath,droneNum):
     for i in range(droneNum):
         for n in state[0].eachFlights[i]:
             print(n.nodeNum,end=" , ")
-        print(state[0].cost_list[i][0].type,"flight time",state[0].cost_list[i][1],"battery consumption",state[0].cost_list[i][2])
+        print(state[0].cost_list[i][0].type,"flight time",state[0].cost_list[i][1],"battery consumption",state[0].cost_list[i][2],"delivery payload",state[0].cost_list[i][3])
     
     state[0].plotRouteFig()
 
 if __name__ == "__main__":
     drone1 = Multi()
     drone2 = Vtol()
-    #main0('data/double10.txt',8)
-    #main03('data/analysis3.txt',drone1)
-    #main03('data/analysis3.txt',drone2)
-    #main2('data/double4.txt')
-    #main02('data/double4.txt')
-    #main2('data/double3.txt')
-    #main2('data/double4.txt')
-    #main2('data/double5.txt')
-    #main2('data/double6.txt')
-    #main2('data/double7.txt')
-    #main2('data/double8.txt')
-    #main2('data/double9.txt')
-    #main2('data/double10.txt')
+    main06('data/large1.txt',15)
+    #main02('data/large1.txt')
     
-    main5('data/double8.txt',3)
+    main5('data/large1.txt',5)
     
     #main4('data/double8.txt')

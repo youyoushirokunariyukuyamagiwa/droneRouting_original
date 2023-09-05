@@ -56,7 +56,35 @@ class Map:
 
         f.close()
     
+    def criateLargeMapFile(N:int,path):
+        f = open(path,'w')
+        f.write("x-axis, y-axis, demand")
+        maplist = []
 
+        for i in range(N) :
+            f.write("\n")
+            x_rand = random.randint(-7,7)
+            y_rand = random.randint(-7,7)
+            
+            while True:
+                flag = 1
+                for x,y in maplist:
+                    if (x==x_rand and y==y_rand ) or (x==0 and y == 0):
+                        flag = 0
+                        break
+                if flag == 1:
+                    break
+                elif flag == 0:
+                    x_rand = random.randint(-7,7)
+                    y_rand = random.randint(-7,7)
+            maplist.append((x_rand,y_rand))
+            demand = random.randint(1,2)/10
+            print("node_num : ", i+1, ", x : ", x_rand, ", y : ", y_rand, ", demand : ", demand,)
+            nodeStr = str(x_rand)+","+str(y_rand)+","+str(demand)
+            f.write(nodeStr)
+
+        f.close()
+                                                                             
     def readMapFile(self,fileName):
         f = open(fileName,'r')
         next(f) #  ファイルの2行目から読み込み
@@ -92,8 +120,10 @@ class Map:
             ax.plot(*[p.x,p.y], 'o', color="red")
             ax.text(p.x, p.y,p.demand)
             
-        ax.set_xlim([0, 1.2*self.maxXY])
-        ax.set_ylim([0, 1.2*self.maxXY])
+        #ax.set_xlim([0, 1.2*self.maxXY])
+        #ax.set_ylim([0, 1.2*self.maxXY])
+        ax.set_xlim([-8, 8])
+        ax.set_ylim([-8, 8])
 
         pyplot.show()
 

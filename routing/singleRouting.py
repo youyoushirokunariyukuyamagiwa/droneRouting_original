@@ -23,10 +23,11 @@ class SingleRouting():
         self.FT = None
         self.BC = None
         self.all_vis = self.makeAllvisFromCustomerList(self.custmerMap,allCustomerNum)
+        
     
-    def checkSumDemand(self,custmerMap):
+    def checkSumDemand(self):
         sumDemand = 0
-        for c in custmerMap:
+        for c in self.custmerMap:
             sumDemand += c.demand
         
         return sumDemand
