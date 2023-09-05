@@ -104,6 +104,7 @@ class VrpState():
         vtolRouting.criateTBobjectB()
         vtolRouting.searchBestRouteObjectB()
         
+        
         multiBC = multiRouting.BC
         vtolBC = vtolRouting.BC
         multiPayload = multiRouting.checkSumDemand()
