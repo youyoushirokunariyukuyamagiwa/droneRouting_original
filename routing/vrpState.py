@@ -3,6 +3,7 @@ from routing.travellingSalesmanProblem import TravellingSalesmanProblem
 from routing.singleRouting import SingleRouting
 from model.multicopter import Multi
 from model.vtol import Vtol
+from model.airframe import Airframe
 from field.node import Node
 from matplotlib import pyplot
 
@@ -97,6 +98,11 @@ class VrpState():
     
     def calcCost(self,map_id):
         
+        if len(self.miniCustomerMap[map_id]) == 0:  # self.miniCustomerMap[map_id]が空ベクトルのときTBが作られずserachBestRouting()でエラー吐く
+            self.cost_list[map_id] = (Airframe(),0,0,0)
+            self.eachFlights[map_id] = []
+            return
+            
         multiRouting = SingleRouting(self.miniCustomerMap[map_id],Multi(),self.allCustomerNum)
         multiRouting.criateTBobjectB()
         multiRouting.searchBestRouteObjectB()

@@ -187,8 +187,8 @@ if __name__ == "__main__":
     drone1 = Multi()
     drone2 = Vtol()
     #main06('data/large1.txt',15)
-    main02('data/large1.txt')
+    #main02('data/large1.txt')
     
-    #main5('data/large1.txt',5)
+    main5('data/large1.txt',15)
     
     #main4('data/double8.txt')
