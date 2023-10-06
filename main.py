@@ -69,7 +69,7 @@ def main05(nodeList):
     
 # 広いマップ作成
 def main06(path,N):
-    Map.criateLargeMapFile(45,path)
+    Map.criateLargeMapFile(N,path)
     
 # 制限の範囲内での1機体でのルーティング
 def main1(mapPath):
@@ -176,18 +176,19 @@ def main5(mapFilePath,droneNum):
     state = vrp.anneal()
     print()
     for i in range(droneNum):
+        print("[",end=" ")
         for n in state[0].eachFlights[i]:
-            print(n.nodeNum,end=" , ")
-        print(state[0].cost_list[i][0].type,"flight time",state[0].cost_list[i][1],"battery consumption",state[0].cost_list[i][2],"delivery payload",state[0].cost_list[i][3])
+            print(n.nodeNum,end=", ")
+        print("]",state[0].cost_list[i][0].type,"FT",format(state[0].cost_list[i][1],'.2f'),"BC",format(state[0].cost_list[i][2],'.2f'),"payload",format(state[0].cost_list[i][3],'.2f'))
     
     state[0].plotRouteFig()
 
 if __name__ == "__main__":
     drone1 = Multi()
     drone2 = Vtol()
-    main06('data/large1.txt',15)
-    #main02('data/large1.txt')
+    #main06('data/large1.txt',15)
+    main02('data/large1.txt')
     
-    main5('data/large1.txt',5)
+    #main5('data/large1.txt',5)
     
     #main4('data/double8.txt')
