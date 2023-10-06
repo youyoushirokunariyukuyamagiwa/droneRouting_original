@@ -1,6 +1,7 @@
 import sys
 import os
 import math
+import types
 sys.path.append(os.path.abspath(".."))
 from matplotlib import pyplot
 
@@ -292,7 +293,7 @@ class SingleRouting():
     
     def searchBestRouteObjectB(self):
         best_BC = float('inf')
-        
+        #best_last_node = Node(-1,0,0,float('inf'))
         for key,tb in self.TB.items():
             vis = key[0]
             last_node = key[1]
@@ -302,6 +303,9 @@ class SingleRouting():
                     best_last_node = last_node
                     best_BC = tb.BC
 
+        #if best_last_node.nodeNum == -1 :
+        #    print("best_last_node が見つからなかった")
+        
         self.bestRoute.append(best_last_node)# ここで一回best_last_nodeにアクセスできませんってエラーでた
         now_node = best_last_node
         now_vis = self.all_vis
