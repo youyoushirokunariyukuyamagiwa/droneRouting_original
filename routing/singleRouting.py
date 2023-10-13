@@ -306,7 +306,7 @@ class SingleRouting():
         #if best_last_node.nodeNum == -1 :
         #    print("best_last_node が見つからなかった")
         
-        self.bestRoute.append(best_last_node)# ここで一回best_last_nodeにアクセスできませんってエラーでた
+        self.bestRoute.append(best_last_node)
         now_node = best_last_node
         now_vis = self.all_vis
         while True:

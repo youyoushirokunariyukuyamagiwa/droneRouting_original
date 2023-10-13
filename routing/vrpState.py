@@ -21,16 +21,18 @@ class VrpState():
             self.eachFlights.append([])
         self.change_flight_1 = None
         self.change_flight_2 = None
-        self.penalty = 30 # batteryとpayload制限を超えた場合にコストに追加するペナルティ
+        self.penalty = 20 # batteryとpayload制限を超えた場合にコストに追加するペナルティ
         
         
     def move(self):
+        #a1 = 移動元
         a1 = random.randint(0,self.droneNum-1) # randint(a,b)はa,b含む範囲内の整数をランダムで返す。ミニマップリストのインデックスと対応させるため0~droneNum-1
+        #b1 = 移動先
         b1 = random.randint(0,self.droneNum-1)
         
         count = 0
         possible = True
-        while a1 == b1 or len(self.miniCustomerMap[a1]) < 2:#１だと移動したあと空のフライトができてしまうので、最低でもカスタマーは２必要
+        while a1 == b1 or len(self.miniCustomerMap[a1]) == 0:#移動元には顧客が入っていないといけない
             if count >= 3:# 選びなおしは2回まで
                 possible = False
                 break
@@ -101,6 +103,9 @@ class VrpState():
         if len(self.miniCustomerMap[map_id]) == 0:  # self.miniCustomerMap[map_id]が空ベクトルのときTBが作られずserachBestRouting()でエラー吐く
             self.cost_list[map_id] = (Airframe(),0,0,0)
             self.eachFlights[map_id] = []
+                                                      
+            #print("battery",0)
+                                                      
             return
             
         multiRouting = SingleRouting(self.miniCustomerMap[map_id],Multi(),self.allCustomerNum)
@@ -122,9 +127,15 @@ class VrpState():
         if multiBC > vtolBC:
             self.cost_list[map_id] = (Vtol(),vtolRouting.FT,vtolBC,vtolPayload)
             self.eachFlights[map_id] = vtolRouting.bestRoute
+                                                                   
+            #print("battery",vtolBC,"payload",vtolPayload)
+                                                                  
         else :
             self.cost_list[map_id] = (Multi(),multiRouting.FT,multiBC,multiPayload)
             self.eachFlights[map_id] = multiRouting.bestRoute
+                                                                     
+            #print("battery",multiBC,"payload",multiPayload)
+                                                                        
     
     def plotRouteFig(self):
         fig = pyplot.figure()
