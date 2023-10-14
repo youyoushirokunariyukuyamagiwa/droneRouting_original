@@ -173,6 +173,10 @@ def main5(mapFilePath,droneNum):
         initial_state.calcCost(i)
     
     vrp = VRP(initial_state)
+                                                   
+    #auto_schedule = vrp.auto(minutes=20) #  時間を20分くらいにしてもらう
+    #vrp.set_schedule(auto_schedule)
+                                                   
     state = vrp.anneal()
     print()
     for i in range(droneNum):
@@ -189,6 +193,6 @@ if __name__ == "__main__":
     #main06('data/large1.txt',15)
     #main02('data/large1.txt')
     
-    main5('data/large1.txt',15)
+    main5('data/large1.txt',10)
     
     #main4('data/double8.txt')
