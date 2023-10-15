@@ -21,7 +21,8 @@ class VrpState():
             self.eachFlights.append([])
         self.change_flight_1 = None
         self.change_flight_2 = None
-        self.penalty = 20 # batteryとpayload制限を超えた場合にコストに追加するペナルティ
+        self.CAP_PENALTY = 30 # batteryとpayload制限を超えた場合にコストに追加するペナルティ
+        self.PAYLOAD_PENALTY = 20 # payload制限超えたときにpayload%10*payload_penaltyを追加
         
         
     def move(self):
@@ -103,9 +104,9 @@ class VrpState():
         if len(self.miniCustomerMap[map_id]) == 0:  # self.miniCustomerMap[map_id]が空ベクトルのときTBが作られずserachBestRouting()でエラー吐く
             self.cost_list[map_id] = (Airframe(),0,0,0)
             self.eachFlights[map_id] = []
-                                                      
-            #print("battery",0)
-                                                      
+                                           
+            #print("顧客数 0")
+                                           
             return
             
         multiRouting = SingleRouting(self.miniCustomerMap[map_id],Multi(),self.allCustomerNum)
@@ -117,25 +118,33 @@ class VrpState():
         
         multiBC = multiRouting.BC
         vtolBC = vtolRouting.BC
-        multiPayload = multiRouting.checkSumDemand()
-        vtolPayload = vtolRouting.checkSumDemand()
-        if multiPayload > Multi().maxPayload_kg or multiRouting.BC > 100:
-            multiBC += self.penalty # 制限を超えている場合ペナルティを付ける
-        if vtolPayload > Vtol().maxPayload_kg or vtolRouting.BC > 100:
-            vtolBC += self.penalty
+        sumPayload = multiRouting.checkSumDemand()
+        
+        #if len(self.miniCustomerMap[map_id]) >= 12:# １顧客につき最低0.1kgの荷物を運ぶので、制限内で配達できる顧客数は最大10カ所である。焼きなまし法なのである程度制限を超える可能性を残して11顧客まで許容する
+        #    self.cost_list[map_id] = (Airframe(),float("inf"),300+2*self.PAYLOAD_PENALTY*len(self.miniCustomerMap[map_id]),sumPayload)
+        #    self.eachFlights[map_id] = []
+        #    return
+        
+        if sumPayload > Multi().maxPayload_kg or multiRouting.BC > 100:
+            multiBC += self.CAP_PENALTY # 制限を超えている場合ペナルティを付ける
+            if sumPayload > Multi().maxPayload_kg:
+                multiBC += (sumPayload - Multi().maxPayload_kg)*10*self.PAYLOAD_PENALTY # payload制限を超えている場合さらにペナルティをつける
+
+        if sumPayload > Vtol().maxPayload_kg or vtolRouting.BC > 100:
+            vtolBC += self.CAP_PENALTY
+            if sumPayload > Vtol().maxPayload_kg:
+                vtolBC += (sumPayload - Vtol().maxPayload_kg)*10*self.PAYLOAD_PENALTY
             
         if multiBC > vtolBC:
-            self.cost_list[map_id] = (Vtol(),vtolRouting.FT,vtolBC,vtolPayload)
+            self.cost_list[map_id] = (Vtol(),vtolRouting.FT,vtolBC,sumPayload)
             self.eachFlights[map_id] = vtolRouting.bestRoute
-                                                                   
-            #print("battery",vtolBC,"payload",vtolPayload)
-                                                                  
         else :
-            self.cost_list[map_id] = (Multi(),multiRouting.FT,multiBC,multiPayload)
+            self.cost_list[map_id] = (Multi(),multiRouting.FT,multiBC,sumPayload)
             self.eachFlights[map_id] = multiRouting.bestRoute
-                                                                     
-            #print("battery",multiBC,"payload",multiPayload)
-                                                                        
+
+                                                                                        
+        #print("顧客数",len(self.miniCustomerMap[map_id]),"payload",sumPayload)
+                                                                                
     
     def plotRouteFig(self):
         fig = pyplot.figure()
