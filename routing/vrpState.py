@@ -58,19 +58,16 @@ class VrpState():
         b1 = random.randint(0,self.droneNum-1)
         
         count = 0
-        possible = True
-        while a1 == b1 or len(self.miniCustomerMap[a1]) < 1 or len(self.miniCustomerMap[b1]) < 1:
+
+        while a1 == b1 or len(self.miniCustomerMap[a1]) < 1 or len(self.miniCustomerMap[b1]) < 1:#ここでループしてる
             if count >= 3:# 選びなおしは2回まで
-                possible = False
-                break
+                return False
             a1 = random.randint(0,self.droneNum-1) # randint(a,b)はa,b含む範囲内の整数をランダムで返す。ミニマップリストのインデックスと対応させるため0~droneNum-1
             b1 = random.randint(0,self.droneNum-1)
+            count += 1
         a2 = random.randint(0,len(self.miniCustomerMap[a1])-1)
         b2 = random.randint(0,len(self.miniCustomerMap[b1])-1)
-        count += 1
-        
-        if possible == False:
-            return False
+
         self.miniCustomerMap[a1][a2] ,self.miniCustomerMap[b1][b2] = self.miniCustomerMap[b1][b2],self.miniCustomerMap[a1][a2]
         
         self.change_flight_1 = a1
@@ -80,6 +77,7 @@ class VrpState():
     
     def change(self):
         R = random.randint(0,1)
+
         done = False
         if R == 0:#移動
             done = self.move()
@@ -89,6 +87,7 @@ class VrpState():
         if done == True:
             self.calcCost(self.change_flight_1)
             self.calcCost(self.change_flight_2)
+
         else:
             return
         

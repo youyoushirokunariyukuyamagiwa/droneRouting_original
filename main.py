@@ -17,12 +17,12 @@ from routing.singleRouting import SingleRouting
 def main0(path,N):
     Map.criateMapFile(N,path)
     
-# battery consumption in 1 minute with 0.1kg~1.0kg payload
+# 機体が各ペイロード量で何分飛行できるのか
 def main01():
-    drone1 = Multi()
+    drone1 = Vtol()
     for i in range(11):
-        BCof1m = drone1.consum_f(i/10)
-        print(i/10,BCof1m)
+        BC1 = drone1.consum_f(i/10)
+        print(i/10,100/BC1)
     
 #mapのみ表示
 def main02(path):
@@ -100,39 +100,40 @@ def main1(mapPath):
     elif routing1.goalFlag == 0 and routing2.goalFlag == 1:
         routing2.plotRouteFig()
     
+# 機体数２で固定での厳密解求解プログラム
 def main2(mapPath):
     drone1 = Multi()
     drone2 = Vtol()
-    #DDR1 = DoubleDR(drone1,drone1,mapPath)
-    #DDR1.findMinBC2flight()
-    #print(drone1.__class__.__name__,"(blue):",DDR1.flightDrone1List,"ft ",DDR1.drone1FT,"BC ",DDR1.drone1BC)
-    #print(drone1.__class__.__name__,"(green):",DDR1.flightDrone2List,"ft ",DDR1.drone2FT,"BC ",DDR1.drone2BC)
+    DDR1 = DoubleDR(drone1,drone1,mapPath)
+    DDR1.findMinBC2flight()
+    print(drone1.__class__.__name__,"(blue):",DDR1.flightDrone1List,"ft ",DDR1.drone1FT,"BC ",DDR1.drone1BC)
+    print(drone1.__class__.__name__,"(green):",DDR1.flightDrone2List,"ft ",DDR1.drone2FT,"BC ",DDR1.drone2BC)
     #print(drone1.__class__.__name__,drone1.__class__.__name__,"BC ",DDR1.drone1BC+DDR1.drone2BC)
     #DDR1.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
-    #print()
+    print()
     
-    #DDR2 = DoubleDR(drone2,drone2,mapPath)
-    #DDR2.findMinBC2flight()
-    #print(drone2.__class__.__name__,"(blue):",DDR2.flightDrone1List,"ft ",DDR2.drone1FT,"BC ",DDR2.drone1BC)
-    #print(drone2.__class__.__name__,"(green):",DDR2.flightDrone2List,"ft ",DDR2.drone2FT,"BC ",DDR2.drone2BC)
+    DDR2 = DoubleDR(drone2,drone2,mapPath)
+    DDR2.findMinBC2flight()
+    print(drone2.__class__.__name__,"(blue):",DDR2.flightDrone1List,"ft ",DDR2.drone1FT,"BC ",DDR2.drone1BC)
+    print(drone2.__class__.__name__,"(green):",DDR2.flightDrone2List,"ft ",DDR2.drone2FT,"BC ",DDR2.drone2BC)
     #print(drone2.__class__.__name__,drone2.__class__.__name__,"BC ",DDR2.drone1BC+DDR2.drone2BC)
     #DDR2.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
-    #print()
+    print()
     
     DDR3 = DoubleDR(drone1,drone2,mapPath)
     DDR3.findMinBC2flight()
     print(drone1.__class__.__name__,"(blue):",DDR3.flightDrone1List,"ft ",DDR3.drone1FT,"BC ",DDR3.drone1BC)
     print(drone2.__class__.__name__,"(green):",DDR3.flightDrone2List,"ft ",DDR3.drone2FT,"BC ",DDR3.drone2BC)
-    
     #print(drone1.__class__.__name__,drone2.__class__.__name__,"BC ",DDR3.drone1BC+DDR3.drone2BC)
-    DDR3.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
+    #DDR3.plotFig() #  青矢印がdrone1, 緑矢印がdrone2
+    print()
     
-    #if DDR1.drone1BC+DDR1.drone2BC < DDR2.drone1BC+DDR2.drone2BC and DDR1.drone1BC+DDR1.drone2BC < DDR3.drone1BC+DDR3.drone2BC:
-    #    print("multi+multi")
-    #elif DDR2.drone1BC+DDR2.drone2BC < DDR1.drone1BC+DDR1.drone2BC and DDR2.drone1BC+DDR2.drone2BC < DDR3.drone1BC+DDR3.drone2BC:
-    #    print("vtol+vtol")
-    #elif DDR3.drone1BC+DDR3.drone2BC < DDR1.drone1BC+DDR1.drone2BC and DDR3.drone1BC+DDR3.drone2BC < DDR2.drone1BC+DDR2.drone2BC:
-    #    print("multi+vtol")
+    if DDR1.drone1BC+DDR1.drone2BC < DDR2.drone1BC+DDR2.drone2BC and DDR1.drone1BC+DDR1.drone2BC < DDR3.drone1BC+DDR3.drone2BC:
+        print("multi+multi")
+    elif DDR2.drone1BC+DDR2.drone2BC < DDR1.drone1BC+DDR1.drone2BC and DDR2.drone1BC+DDR2.drone2BC < DDR3.drone1BC+DDR3.drone2BC:
+        print("vtol+vtol")
+    elif DDR3.drone1BC+DDR3.drone2BC < DDR1.drone1BC+DDR1.drone2BC and DDR3.drone1BC+DDR3.drone2BC < DDR2.drone1BC+DDR2.drone2BC:
+        print("multi+vtol")
     
 # simannelを利用したsingleRoutingを実行実験する
 def main3(drone1,mapFilePath):
@@ -173,10 +174,10 @@ def main5(mapFilePath,droneNum):
         initial_state.calcCost(i)
     
     vrp = VRP(initial_state)
-                                                   
+
     #auto_schedule = vrp.auto(minutes=20) #  時間を20分くらいにしてもらう
     #vrp.set_schedule(auto_schedule)
-                                                   
+
     state = vrp.anneal()
     print()
     for i in range(droneNum):
@@ -188,11 +189,7 @@ def main5(mapFilePath,droneNum):
     state[0].plotRouteFig()
 
 if __name__ == "__main__":
-    drone1 = Multi()
-    drone2 = Vtol()
-    #main06('data/large1.txt',15)
+    #main0('data/map3.txt',4)
+    main5('data/large1.txt',15)
     #main02('data/large1.txt')
-    
-    main5('data/large1.txt',10)
-    
     #main4('data/double8.txt')
