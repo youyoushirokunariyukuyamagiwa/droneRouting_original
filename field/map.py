@@ -78,7 +78,7 @@ class Map:
                     x_rand = random.randint(-7,7)
                     y_rand = random.randint(-7,7)
             maplist.append((x_rand,y_rand))
-            demand = random.randint(1,2)/10
+            demand = random.randint(1,5)/10
             print("node_num : ", i+1, ", x : ", x_rand, ", y : ", y_rand, ", demand : ", demand,)
             nodeStr = str(x_rand)+","+str(y_rand)+","+str(demand)
             f.write(nodeStr)
