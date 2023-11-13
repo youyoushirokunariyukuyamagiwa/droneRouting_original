@@ -23,6 +23,7 @@ class VrpState():
         self.change_flight_2 = None
         self.CAP_PENALTY = 30 # batteryとpayload制限を超えた場合にコストに追加するペナルティ
         self.PAYLOAD_PENALTY = 20 # payload制限超えたときにpayload%10*payload_penaltyを追加
+        self.BATTERY_PENALTY = 1 #batteryが100を超えた分にペナルティとして追加する倍率 battery_penalty*(BC-100)
         
         
     def move(self):
@@ -124,8 +125,11 @@ class VrpState():
         #    self.eachFlights[map_id] = []
         #    return
         
+        
         if sumPayload > Multi().maxPayload_kg or multiRouting.BC > 100:
             multiBC += self.CAP_PENALTY # 制限を超えている場合ペナルティを付ける
+            if multiRouting.BC > 100:
+                multiBC += (multiRouting.BC-100)*self.BATTERY_PENALTY
             if sumPayload > Multi().maxPayload_kg:
                 multiBC += (sumPayload - Multi().maxPayload_kg)*10*self.PAYLOAD_PENALTY # payload制限を超えている場合さらにペナルティをつける
 

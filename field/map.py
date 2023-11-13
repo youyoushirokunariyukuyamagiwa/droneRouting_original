@@ -56,29 +56,30 @@ class Map:
 
         f.close()
     
-    def criateLargeMapFile(N:int,path):
+    def criateLargeMapFile(N:int,r,p,path):
         f = open(path,'w')
         f.write("x-axis, y-axis, demand")
         maplist = []
+        _r = -1*r
 
         for i in range(N) :
             f.write("\n")
-            x_rand = random.randint(-7,7)
-            y_rand = random.randint(-7,7)
+            x_rand = random.randint(_r,r)
+            y_rand = random.randint(_r,r)
             
             while True:
                 flag = 1
                 for x,y in maplist:
-                    if (x==x_rand and y==y_rand ) or (x==0 and y == 0):
+                    if (x==x_rand and y==y_rand ) or (x_rand==0 and y_rand == 0):
                         flag = 0
                         break
                 if flag == 1:
                     break
                 elif flag == 0:
-                    x_rand = random.randint(-7,7)
-                    y_rand = random.randint(-7,7)
+                    x_rand = random.randint(_r,r)
+                    y_rand = random.randint(_r,r)
             maplist.append((x_rand,y_rand))
-            demand = random.randint(1,5)/10
+            demand = random.randint(1,p*10)/10
             print("node_num : ", i+1, ", x : ", x_rand, ", y : ", y_rand, ", demand : ", demand,)
             nodeStr = str(x_rand)+","+str(y_rand)+","+str(demand)
             f.write(nodeStr)
@@ -137,6 +138,9 @@ class Map:
     def distance(self,fromNodeNum,toNodeNum):
         fromNode = self.nodeList[fromNodeNum]
         toNode = self.nodeList[toNodeNum]
+        return math.sqrt((fromNode.x - toNode.x)**2 + (fromNode.y - toNode.y)**2)
+    
+    def distance2(self,fromNode,toNode):
         return math.sqrt((fromNode.x - toNode.x)**2 + (fromNode.y - toNode.y)**2)
 
     def criateDmatrix(self):

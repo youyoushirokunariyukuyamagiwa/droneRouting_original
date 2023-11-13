@@ -19,10 +19,10 @@ def main0(path,N):
     
 # 機体が各ペイロード量で何分飛行できるのか
 def main01():
-    drone1 = Vtol()
+    drone1 = Multi()
     for i in range(11):
         BC1 = drone1.consum_f(i/10)
-        print(i/10,100/BC1)
+        print(i/10,(100-drone1.consum_h(i/10))/BC1)
     
 #mapのみ表示
 def main02(path):
@@ -68,8 +68,8 @@ def main05(nodeList):
     pyplot.show()
     
 # 広いマップ作成
-def main06(path,N):
-    Map.criateLargeMapFile(N,path)
+def main06(path,N,r,p):
+    Map.criateLargeMapFile(N,r,p,path)
     
 # 制限の範囲内での1機体でのルーティング
 def main1(mapPath):
@@ -168,10 +168,24 @@ def main5(mapFilePath,droneNum):
     customerList = map.customerList
     #初期解作成
     initial_state = VrpState(droneNum,map.CN)
+    i = 0
     for c in customerList:
-        initial_state.miniCustomerMap[random.randint(0,droneNum-1)].append(c)
+        initial_state.miniCustomerMap[i].append(c)
+        i += 1
+        if i == droneNum:
+            i = 0
+    
+    for j in range(droneNum):
+        initial_state.calcCost(j)
+
+    # 初期解表示
+    
     for i in range(droneNum):
-        initial_state.calcCost(i)
+        print("[",end=" ")
+        for n in initial_state.eachFlights[i]:
+            print(n.nodeNum,end=", ")
+        print("]",initial_state.cost_list[i][0].type,"FT",format(initial_state.cost_list[i][1],'.2f'),"BC",format(initial_state.cost_list[i][2],'.2f'),"payload",format(initial_state.cost_list[i][3],'.2f'))
+    
     
     vrp = VRP(initial_state)
 
@@ -180,16 +194,88 @@ def main5(mapFilePath,droneNum):
 
     state = vrp.anneal()
     print()
-    for i in range(droneNum):
-        print("[",end=" ")
-        for n in state[0].eachFlights[i]:
-            print(n.nodeNum,end=", ")
-        print("]",state[0].cost_list[i][0].type,"FT",format(state[0].cost_list[i][1],'.2f'),"BC",format(state[0].cost_list[i][2],'.2f'),"payload",format(state[0].cost_list[i][3],'.2f'))
+    #for i in range(droneNum):
+    #    if len(state[0].eachFlights[i])==0:
+    #        continue
+    #    print("[",end=" ")
+    #    for n in state[0].eachFlights[i]:
+    #    print(n.nodeNum,end=", ")
+    #    print("]",state[0].cost_list[i][0].type,"FT",format(state[0].cost_list[i][1],'.2f'),"BC",format(state[0].cost_list[i][2],'.2f'),"payload",format(state[0].cost_list[i][3],'.2f'))
     
-    state[0].plotRouteFig()
+    #state[0].plotRouteFig()
+    
+    #分析用
+    for i in range(droneNum):
+        if len(state[0].eachFlights[i])==0:
+            continue
+        d = 0
+        for j in range(len(state[0].eachFlights[i])-1):
+            d += map.distance2(state[0].eachFlights[i][j],state[0].eachFlights[i][j+1])
+        print(state[0].cost_list[i][0].type,"customer amount",len(state[0].eachFlights[i])-2,"payload",format(state[0].cost_list[i][3],'.2f'),"distance",format(d,'.2f'),"BC",format(state[0].cost_list[i][2],'.2f'))
+    print(vrp.best_score)
 
+def gomi():
+    multi_list = [(2,0.3,5.24),
+                  (1,0.1,2.83),
+                  (1,0.1,18),
+                  (2,0.2,16.41),
+                  (4,0.5,19.89),
+                  (1,0.2,2),
+                  (3,0.7,9.05),
+                  (3,0.5,7.24),
+                  (2,0.5,7.63),
+                  (2,0.4,6),
+                  (2,0.4,6.65),
+                  (5,0.7,13.73),
+                  (4,0.7,12.6),
+                  (4,0.5,10.94),
+                  (3,0.5,10.34),
+                  (7,0.8,15)]
+    
+    vtol_list = [(3,0.8,25.61),
+                 (3,0.9,17.92),
+                 (3,1,21.57),
+                 (3,0.7,13.91),
+                 (3,1,20.31),
+                 (2,0.8,10.99),
+                 (3,0.8,16.19),
+                 (4,1,19.63),
+                 (3,0.9,19.97),
+                 (3,0.9,15.72),
+                 (4,0.9,22.07),
+                 (4,1,22.22),
+                 (4,0.9,22.25),
+                 (4,0.6,21.76),
+                 (3,0.5,27.11),
+                 (3,0.4,30.02),
+                 (4,0.7,25.16),
+                 (4,0.7,25.22),
+                 (1,0.2,18.44),
+                 (3,0.4,24.09),
+                 (3,0.4,19.09),
+                 (4,0.5,22.53),
+                 (4,0.6,23.63)]
+    
+    fig = pyplot.figure()
+    ax = fig.add_subplot(111)
+
+    for p in multi_list: #  ノードのプロット
+        ax.plot(*[p[2],p[1]], 'o', color="red")
+    
+    for p in vtol_list: #  ノードのプロット
+        ax.plot(*[p[2],p[1]], 'o', color="blue")
+        
+    ax.set_xlim([0, 35])
+    ax.set_ylim([0, 1.2])
+    ax.set_xlabel("flight distance(km)")
+    ax.set_ylabel("payload(kg)")
+    ax.grid(axis="both")
+    
+    pyplot.show()
+        
+        
 if __name__ == "__main__":
-    #main0('data/map3.txt',4)
-    main5('data/large1.txt',15)
-    #main02('data/large1.txt')
-    #main4('data/double8.txt')
+    #main06('data/large5.txt',10,10,0.1)
+    #main5('data/map4.txt',5)
+    gomi()
+    #main01()
